@@ -1,6 +1,6 @@
 import prisma from "../config/db.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { generateToken } from "../utils/generateToken.js";
 
 // Register
 export const register = async (req, res) => {
@@ -27,6 +27,15 @@ export const register = async (req, res) => {
         email,
         password: hashedPassword,
       },
+    });
+
+    const token = generateToken(user.id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 30 * 60 * 1000,
     });
 
     res.status(201).json({
@@ -67,23 +76,53 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Wrong password" });
     }
 
-    const token = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    const token = generateToken(user.id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 30 * 60 * 1000,
+    });
 
     res.json({
       message: "Login success",
-      token,
       user: {
         id: user.id,
         name: user.name,
-        email: user.createdAt,
+        email: user.email,
       },
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Login failed" });
   }
+};
+
+export const getMe = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found"});
+    }
+
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    res.status(401).json({ message: "Failed to get user" });
+  }
+};
+
+// logout
+export const logout = (req, res) => {
+  res.clearCookie("token");
+  res.json({ message: "Logged out" });
 };
