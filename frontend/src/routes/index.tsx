@@ -48,15 +48,7 @@ function FeatureCard({
   );
 }
 
-function Stat({
-  icon,
-  value,
-  label,
-}: {
-  icon: React.ReactNode;
-  value: string;
-  label: string;
-}) {
+function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
     <div className="rounded-2xl bg-card p-6 text-center shadow-card">
       <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
@@ -86,15 +78,7 @@ function Step({
   );
 }
 
-function Testimonial({
-  quote,
-  name,
-  role,
-}: {
-  quote: string;
-  name: string;
-  role: string;
-}) {
+function Testimonial({ quote, name, role }: { quote: string; name: string; role: string }) {
   return (
     <div className="relative rounded-3xl border border-border bg-card p-8 shadow-card">
       <Quote className="mb-4 h-6 w-6 text-accent-bright" />
@@ -126,13 +110,12 @@ function Index() {
                 AI-powered wellbeing check
               </div>
               <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-                Check your <span className="text-primary">stress level</span> in
-                a <span className="text-accent-bright">moment</span>.
+                Check your <span className="text-primary">stress level</span> in a{" "}
+                <span className="text-accent-bright">moment</span>.
               </h1>
               <p className="max-w-lg text-lg text-muted-foreground font-inter">
-                Take a deep breath. Snap a face photo or chat with our friendly
-                bot, and get a calm, clear read on how you're really feeling —
-                anytime.
+                Take a deep breath. Snap a face photo or chat with our friendly bot, and get a calm,
+                clear read on how you're really feeling — anytime.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild variant="hero" size="xl">
@@ -172,8 +155,7 @@ function Index() {
         <section className="container mx-auto px-4 py-20">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-              Two ways to check in with{" "}
-              <span className="text-accent-bright">yourself</span>
+              Two ways to check in with <span className="text-accent-bright">yourself</span>
             </h2>
             <p className="mt-4 text-muted-foreground">
               Pick whichever feels right today. Both take less than a minute.
@@ -202,13 +184,11 @@ function Index() {
                 Why CalmCheck
               </span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
-                Your daily companion for a{" "}
-                <span className="text-accent-bright">balanced mind</span>
+                Your daily companion for a <span className="text-accent-bright">balanced mind</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Stress builds up quietly. CalmCheck gives you a gentle,
-                science-inspired way to notice it early — so you can act before
-                it takes over.
+                Stress builds up quietly. CalmCheck gives you a gentle, science-inspired way to
+                notice it early — so you can act before it takes over.
               </p>
             </div>
             <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -238,9 +218,7 @@ function Index() {
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
               How it <span className="text-primary">works</span>
             </h2>
-            <p className="mt-4 text-muted-foreground">
-              Three simple steps. Zero pressure.
-            </p>
+            <p className="mt-4 text-muted-foreground">Three simple steps. Zero pressure.</p>
           </div>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             <Step
@@ -294,26 +272,13 @@ function Index() {
         <section className="container mx-auto px-4 py-20">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-              Small habit,{" "}
-              <span className="text-accent-bright">big difference</span>
+              Small habit, <span className="text-accent-bright">big difference</span>
             </h2>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
-            <Stat
-              icon={<LineChart />}
-              value="98%"
-              label="Users feel more aware after one check"
-            />
-            <Stat
-              icon={<Heart />}
-              value="60s"
-              label="Average time to complete a session"
-            />
-            <Stat
-              icon={<ShieldCheck />}
-              value="100%"
-              label="Private — your data stays yours"
-            />
+            <Stat icon={<LineChart />} value="98%" label="Users feel more aware after one check" />
+            <Stat icon={<Heart />} value="60s" label="Average time to complete a session" />
+            <Stat icon={<ShieldCheck />} value="100%" label="Private — your data stays yours" />
           </div>
         </section>
 
@@ -328,8 +293,8 @@ function Index() {
                 A calmer you, one check-in at a time
               </h2>
               <p className="text-muted-foreground">
-                CalmCheck blends gentle AI with mindful design — so checking in
-                feels less like a test, and more like a moment for yourself.
+                CalmCheck blends gentle AI with mindful design — so checking in feels less like a
+                test, and more like a moment for yourself.
               </p>
             </div>
             <ul className="space-y-4">
@@ -355,12 +320,11 @@ function Index() {
             <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accent/40 blur-3xl" />
             <div className="relative space-y-4 text-center">
               <h2 className="text-3xl font-bold md:text-4xl">
-                Ready for a <span className="text-accent">brighter</span>{" "}
-                moment?
+                Ready for a <span className="text-accent">brighter</span> moment?
               </h2>
               <p className="mx-auto max-w-xl text-primary-foreground/80">
-                Your wellbeing matters. Start your first stress check now — it's
-                free, fast, and gentle.
+                Your wellbeing matters. Start your first stress check now — it's free, fast, and
+                gentle.
               </p>
               <div className="flex justify-center pt-2">
                 <Button asChild variant="accent" size="xl">

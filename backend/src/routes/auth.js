@@ -12,10 +12,10 @@ router.get("/me", authMiddleware, getMe);
 router.post("/logout", logout);
 
 router.get(
-    "/google",
-    passport.authenticate("google", {
-        scope: ["profile", "email"],
-    })
+  "/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  }),
 );
 
 router.get(
@@ -25,11 +25,9 @@ router.get(
     failureRedirect: "/login",
   }),
   (req, res) => {
-    const token = jwt.sign(
-      { userId: req.user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: "30m" }
-    );
+    const token = jwt.sign({ userId: req.user.id }, process.env.JWT_SECRET, {
+      expiresIn: "30m",
+    });
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -38,8 +36,8 @@ router.get(
       maxAge: 30 * 60 * 1000,
     });
 
-    res.redirect("http://localhost:3001"); 
-  }
+    res.redirect("http://localhost:4000/measurement");
+  },
 );
 
 export default router;
