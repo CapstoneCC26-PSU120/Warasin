@@ -44,7 +44,7 @@ export const register = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
       },
     });
   } catch (error) {
@@ -61,7 +61,7 @@ export const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
-    
+
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -106,7 +106,7 @@ export const getMe = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found"});
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.json({
