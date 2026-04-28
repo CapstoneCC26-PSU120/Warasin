@@ -1,5 +1,5 @@
-import { SiteFooter } from "#/components/SiteFooter";
-import { Button } from "#/components/ui/button";
+import { SiteFooter } from "@/components/SiteFooter";
+import { Button } from "@/components/ui/button";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Brain,
@@ -16,7 +16,7 @@ import {
   Zap,
 } from "lucide-react";
 import heroImage from "@/assets/hero-calm.png";
-import { SiteHeader } from "#/components/SiteHeader";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/")({ component: Index });
 
@@ -181,14 +181,14 @@ function Index() {
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-2xl text-center">
               <span className="inline-block rounded-full bg-accent px-4 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
-                Why CalmCheck
+                Why Warasin?
               </span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
                 Your daily companion for a <span className="text-accent-bright">balanced mind</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Stress builds up quietly. CalmCheck gives you a gentle, science-inspired way to
-                notice it early — so you can act before it takes over.
+                Stress builds up quietly. Warasin gives you a gentle, science-inspired way to notice
+                it early — so you can act before it takes over.
               </p>
             </div>
             <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -206,7 +206,7 @@ function Index() {
               <FeatureCard
                 icon={<Smile className="h-6 w-6" />}
                 title="Built for everyone"
-                description="Student, parent, or professional — CalmCheck adapts to where you are right now."
+                description="Student, parent, or professional — Warasin adapts to where you are right now."
               />
             </div>
           </div>
@@ -293,7 +293,7 @@ function Index() {
                 A calmer you, one check-in at a time
               </h2>
               <p className="text-muted-foreground">
-                CalmCheck blends gentle AI with mindful design — so checking in feels less like a
+                Warasin blends gentle AI with mindful design — so checking in feels less like a
                 test, and more like a moment for yourself.
               </p>
             </div>
