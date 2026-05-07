@@ -1,63 +1,53 @@
 import prisma from "../config/db.js";
 
-export const startChat = async (req, res) => {
+export const submitAnswer = async (req, res) => {
   try {
-    await prisma.chatSession.updateMany({
-      where: {
-        userId: req.user.userId,
-        isActive: true,
-      },
-      data: {
-        isActive: false,
-      },
-    });
+    const answers = req.body;
 
-    await prisma.chatSession.create({
-      data: {
-        userId: req.user.userId,
-        isActive: true,
-      },
-    });
-
-    res.json({ message: "Session started successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to start session" });
-  }
-};
-
-export const saveAnswer = async (req, res) => {
-  try {
-    const { answers } = req.body;
-
-    if (!answers || !Array.isArray(answers)) {
-      return res.status(400).json({ message: "Answers must be an array" });
+    if (!answers || Object.keys(answers).length === 0) {
+      return res.status(400).json({
+        message: "Answers are required",
+      });
     }
 
-    const session = await prisma.chatSession.findFirst({
-      where: {
+    // DUMMY AI RESPONSE
+    const aiResult = {
+      score: 72,
+      category: "Medium Stress",
+      advice: "Try improving sleep quality and reduce stress level.",
+    };
+
+    const history = await prisma.chatHistory.create({
+      data: {
         userId: req.user.userId,
-        isActive: true,
+        answers,
+        score: aiResult.score,
+        category: aiResult.category,
+        advice: aiResult.advice,
       },
     });
 
-    if (!session) {
-      return res.status(404).json({ message: "Active session not found" });
-    }
-
-    await prisma.chatSession.update({
-      where: { id: session.id },
-      data: { answers },
+    res.status(201).json({
+      message: "Stress analysis completed",
+      result: {
+        score: history.score,
+        category: history.category,
+        advice: history.advice,
+      },
     });
-
-    res.json({ message: "Answers saved successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to save answers" });
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to process chatbot",
+      error: error.message,
+    });
   }
 };
 
 export const getHistory = async (req, res) => {
   try {
-    const sessions = await prisma.chatSession.findMany({
+    const histories = await prisma.chatHistory.findMany({
       where: {
         userId: req.user.userId,
       },
@@ -66,8 +56,13 @@ export const getHistory = async (req, res) => {
       },
     });
 
-    res.json(sessions);
+    res.json(histories);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch history" });
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to get history",
+      error: error.message,
+    });
   }
 };

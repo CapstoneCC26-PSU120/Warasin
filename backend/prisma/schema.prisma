@@ -14,15 +14,24 @@ model User {
   password  String
   createdAt DateTime @default(now())
 
+  chatHistories ChatHistory[]
+  
   @@map("users")
 }
 
-model ChatSession {
-  id        String   @id @default(uuid())
-  userId    String
-  answers   Json?
-  score     Float?
-  category  String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+model ChatHistory {
+  id         String   @id @default(uuid())
+  userId     String
+
+  answers    Json
+
+  score      Float?
+  category   String?
+  advice     String?
+
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("chat_history")
 }
