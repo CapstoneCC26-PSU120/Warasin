@@ -33,7 +33,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#e0f2fe] via-white to-[#fef08a] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-[#e0f2fe] via-white to-[#fef08a] flex flex-col items-center justify-center p-4">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8 text-[#0284c7]">
         <div className="bg-[#0284c7] p-2 rounded-full text-white">
@@ -99,9 +99,9 @@ function Login() {
           </button>
 
           <div className="relative flex items-center py-4">
-            <div className="flex-grow border-t border-slate-200"></div>
-            <span className="flex-shrink-0 mx-4 text-slate-400 text-sm">or</span>
-            <div className="flex-grow border-t border-slate-200"></div>
+            <div className="grow border-t border-slate-200"></div>
+            <span className="shrink-0 mx-4 text-slate-400 text-sm">or</span>
+            <div className="grow border-t border-slate-200"></div>
           </div>
 
           <button
