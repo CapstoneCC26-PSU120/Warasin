@@ -8,10 +8,30 @@ datasource db {
 }
 
 model User {
-  @@map("users")
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   name      String
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+
+  chatHistories ChatHistory[]
+  
+  @@map("users")
+}
+
+model ChatHistory {
+  id         String   @id @default(uuid())
+  userId     String
+
+  answers    Json
+
+  score      Float?
+  category   String?
+  advice     String?
+
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("chat_history")
 }
