@@ -3,6 +3,7 @@ import { questions } from "@/lib/questions";
 import { answerSchema } from "@/lib/questions.schema";
 import api from "@/lib/api";
 import { Send, Loader2, MessageCircle } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 
 type Message = {
   id: string;
@@ -23,6 +24,7 @@ export function Chatbot() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const navigate = useNavigate();
 
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const currentQ = questions[currentStep];
@@ -100,15 +102,25 @@ export function Chatbot() {
       }, 500);
 
       try {
-        await api.post("/measurement/chatbot", newAnswers);
+        const response = await api.post("/chatbot/answer", newAnswers);
+        const { score, category, advice } = response.data.result;
+
         setMessages((prev) => [
           ...prev,
           {
             id: "done",
             sender: "bot",
-            text: "All done! Your results have been saved.",
+            text: "All done! Redirecting you to your results...",
           },
         ]);
+
+        // Short delay so user can see the final message before redirect
+        setTimeout(() => {
+          navigate({
+            to: "/result" as any,
+            state: { score, category, advice } as any,
+          });
+        }, 1000);
       } catch (err) {
         setMessages((prev) => [
           ...prev,
@@ -118,7 +130,6 @@ export function Chatbot() {
             text: "Oops, something went wrong while saving your answers.",
           },
         ]);
-      } finally {
         setIsSubmitting(false);
       }
     }
@@ -128,7 +139,7 @@ export function Chatbot() {
   const currentOptions = currentStep < questions.length ? questions[currentStep].options : null;
 
   return (
-    <div className="flex flex-col h-[550px] w-full max-w-3xl mx-auto border border-slate-200/60 bg-white rounded-3xl shadow-sm overflow-hidden">
+    <div className="flex flex-col h-[550px] w-full max-w-3xl mx-auto border border-slate-200/60 rounded-3xl shadow-sm overflow-hidden bg-hero">
       {/* Header */}
       <div className="flex items-center gap-3 p-5 border-b border-slate-100 bg-white">
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#128cfc] text-white">
