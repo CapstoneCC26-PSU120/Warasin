@@ -103,6 +103,7 @@ export function Chatbot() {
 
       try {
         const response = await api.post("/chatbot/answer", newAnswers);
+        console.log(response.data.result);
         const { score, category, advice } = response.data.result;
 
         setMessages((prev) => [
