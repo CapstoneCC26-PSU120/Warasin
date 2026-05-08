@@ -24,13 +24,7 @@ function getScoreLabel(category: string): string {
   return category;
 }
 
-function CircularProgress({
-  score,
-  color,
-}: {
-  score: number;
-  color: string;
-}) {
+function CircularProgress({ score, color }: { score: number; color: string }) {
   const radius = 56;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
@@ -45,8 +39,7 @@ function CircularProgress({
           if (circleRef.current) {
             circleRef.current.style.transition =
               "stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)";
-            circleRef.current.style.strokeDashoffset =
-              String(strokeDashoffset);
+            circleRef.current.style.strokeDashoffset = String(strokeDashoffset);
           }
         });
       });
@@ -55,21 +48,9 @@ function CircularProgress({
 
   return (
     <div className="relative flex items-center justify-center w-40 h-40">
-      <svg
-        width="160"
-        height="160"
-        viewBox="0 0 160 160"
-        className="-rotate-90"
-      >
+      <svg width="160" height="160" viewBox="0 0 160 160" className="-rotate-90">
         {/* Track */}
-        <circle
-          cx="80"
-          cy="80"
-          r={radius}
-          fill="none"
-          stroke="#e8f0fe"
-          strokeWidth="12"
-        />
+        <circle cx="80" cy="80" r={radius} fill="none" stroke="#e8f0fe" strokeWidth="12" />
         {/* Progress */}
         <circle
           ref={circleRef}
@@ -127,8 +108,7 @@ function ResultPage() {
 
           {/* Headline */}
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800 text-center leading-tight">
-            Your stress level is{" "}
-            <span style={{ color }}>{getScoreLabel(category)}</span>
+            Your stress level is <span style={{ color }}>{getScoreLabel(category)}</span>
           </h1>
 
           {/* Circular Progress */}
@@ -147,16 +127,11 @@ function ResultPage() {
           <div className="w-full bg-[#f5f9ff] border border-[#dbeafe] rounded-2xl px-6 py-5 space-y-3">
             <div className="flex items-center gap-2">
               <Heart className="w-4 h-4 text-[#fca120]" />
-              <span className="text-sm font-semibold text-[#006bd6]">
-                Gentle suggestions
-              </span>
+              <span className="text-sm font-semibold text-[#006bd6]">Gentle suggestions</span>
             </div>
             <ul className="space-y-2">
               {adviceItems.map((item, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-2 text-sm text-slate-600"
-                >
+                <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
                   <span className="mt-0.5 text-[#fca120] shrink-0">·</span>
                   <span>{item}</span>
                 </li>

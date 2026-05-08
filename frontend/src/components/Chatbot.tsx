@@ -139,7 +139,7 @@ export function Chatbot() {
   const currentOptions = currentStep < questions.length ? questions[currentStep].options : null;
 
   return (
-    <div className="flex flex-col h-[550px] w-full max-w-3xl mx-auto border border-slate-200/60 rounded-3xl shadow-sm overflow-hidden bg-hero">
+    <div className="flex flex-col h-[550px] w-full max-w-3xl mx-auto border border-slate-200/60 rounded-3xl shadow-sm overflow-hidden ">
       {/* Header */}
       <div className="flex items-center gap-3 p-5 border-b border-slate-100 bg-white">
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#128cfc] text-white">
