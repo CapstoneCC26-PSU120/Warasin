@@ -16,6 +16,13 @@ export const registerSchema = loginSchema.extend({
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 
+export const updateProfileSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  phone: z.string().optional(),
+});
+
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
 // API functions
 const getMe = async () => {
   const { data } = await api.get("/auth/me");
@@ -34,6 +41,11 @@ const register = async (input: RegisterInput) => {
 
 const logout = async () => {
   await api.post("/auth/logout");
+};
+
+const updateProfile = async (input: UpdateProfileInput) => {
+  const { data } = await api.put("/auth/profile", input);
+  return data.user;
 };
 
 // Hooks
@@ -72,6 +84,16 @@ export const useLogout = () => {
     mutationFn: logout,
     onSuccess: () => {
       queryClient.setQueryData(["auth", "me"], null);
+    },
+  });
+};
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateProfile,
+    onSuccess: (data) => {
+      queryClient.setQueryData(["auth", "me"], data);
     },
   });
 };
