@@ -1,0 +1,26 @@
+{
+  "userId": "25d57e46-f489-4efa-bbb8-5408d4bd5eeb",
+  "data": [
+    {
+      "id": "4d9ea875-a5db-4a1b-b243-6488b544f197",
+      "answers": {
+        "Age": 28,
+        "Gender": "Female",
+        "Heart Rate": 80,
+        "Occupation": "Nurse",
+        "BP_Systolic": 125,
+        "Daily Steps": 4000,
+        "BMI Category": "Normal",
+        "BP_Diastolic": 82,
+        "Sleep Disorder": null,
+        "Sleep Duration": 6.5,
+        "Quality of Sleep": 5,
+        "Physical Activity Level": 30
+      },
+      "score": 72,
+      "category": "Medium Stress",
+      "advice": "Try improving sleep quality and reduce stress level.",
+      "createdAt": "2026-05-07T12:17:13.542Z"
+    }
+  ]
+}
