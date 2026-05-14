@@ -2,7 +2,7 @@ import express from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import { authMiddleware } from "../middlewares/authMidleware.js";
-import { register, login, getMe, logout } from "../controllers/authController.js";
+import { register, login, getMe, logout, updateProfile } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -10,6 +10,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/me", authMiddleware, getMe);
 router.post("/logout", logout);
+router.put("/profile", authMiddleware, updateProfile);
 
 router.get(
   "/google",

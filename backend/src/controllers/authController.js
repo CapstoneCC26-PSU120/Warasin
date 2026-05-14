@@ -114,6 +114,7 @@ export const getMe = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        birthDate: user.birthDate,
       },
     });
   } catch (error) {
@@ -125,4 +126,38 @@ export const getMe = async (req, res) => {
 export const logout = (req, res) => {
   res.clearCookie("token");
   res.json({ message: "Logged out" });
+};
+
+// edit profile
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, birthDate } = req.body;
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: req.user.userId,
+      },
+      data: {
+        name,
+        birthDate: birthDate ? new Date(birthDate) : null,
+      },
+    });
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        birthDate: updatedUser.birthDate,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to update profile",
+      error: error.message,
+    });
+  }
 };

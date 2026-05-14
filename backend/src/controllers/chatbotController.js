@@ -54,14 +54,61 @@ export const getHistory = async (req, res) => {
       orderBy: {
         createdAt: "desc",
       },
+      select: {
+        id: true,
+        answers: true,
+        score: true,
+        category: true,
+        advice: true,
+        createdAt: true,
+      },
     });
 
-    res.json(histories);
+    res.json({
+      userId: req.user.userId,
+      data: histories,
+    });
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
       message: "Failed to get history",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const history = await prisma.chatHistory.findFirst({
+      where: {
+        id,
+        userId: req.user.userId,
+      },
+    });
+
+    if (!history) {
+      return res.status(404).json({
+        message: "History not found",
+      });
+    }
+
+    await prisma.chatHistory.delete({
+      where: {
+        id,
+      },
+    });
+
+    res.json({
+      message: "History deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to delete history",
       error: error.message,
     });
   }
