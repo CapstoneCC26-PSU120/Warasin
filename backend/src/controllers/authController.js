@@ -131,7 +131,7 @@ export const logout = (req, res) => {
 // edit profile
 export const updateProfile = async (req, res) => {
   try {
-    const { name, birthDate } = req.body;
+    const { name, birthDate, avatarUrl } = req.body;
 
     const updatedUser = await prisma.user.update({
       where: {
@@ -140,6 +140,7 @@ export const updateProfile = async (req, res) => {
       data: {
         name,
         birthDate: birthDate ? new Date(birthDate) : null,
+        avatarUrl,
       },
     });
 
@@ -150,6 +151,7 @@ export const updateProfile = async (req, res) => {
         name: updatedUser.name,
         email: updatedUser.email,
         birthDate: updatedUser.birthDate,
+        avatarUrl: updatedUser.avatarUrl,
       },
     });
   } catch (error) {

@@ -13,6 +13,7 @@ model User {
   email     String   @unique
   password  String
   birthDate DateTime?
+  avatarUrl String?
   createdAt DateTime @default(now())
 
   chatHistories ChatHistory[]
