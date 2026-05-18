@@ -78,6 +78,44 @@ export const getHistory = async (req, res) => {
   }
 };
 
+export const getHistoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const history = await prisma.chatHistory.findFirst({
+      where: {
+        id,
+        userId: req.user.userId,
+      },
+      select: {
+        id: true,
+        answers: true,
+        score: true,
+        category: true,
+        advice: true,
+        createdAt: true,
+      },
+    });
+
+    if (!history) {
+      return res.status(404).json({
+        message: "History not found",
+      });
+    }
+
+    res.json({
+      userId: req.user.userId,
+      data: [history],
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to get history detail",
+    });
+  }
+};
+
 export const deleteHistory = async (req, res) => {
   try {
     const { id } = req.params;
