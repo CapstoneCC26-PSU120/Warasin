@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>THE DROP | BLOKSEKEN</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&amp;family=Hanken+Grotesk:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffdbcf",
+                        "surface-container-high": "#e9e8e5",
+                        "on-surface-variant": "#4f453f",
+                        "inverse-primary": "#dec1af",
+                        "on-primary-fixed-variant": "#574335",
+                        "inverse-on-surface": "#f2f1ee",
+                        "primary": "#26170c",
+                        "on-error": "#ffffff",
+                        "background": "#faf9f6",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e3e2e0",
+                        "surface-container-highest": "#e3e2e0",
+                        "surface-container-low": "#f4f3f1",
+                        "primary-container": "#3d2b1f",
+                        "on-secondary-container": "#626753",
+                        "on-secondary-fixed-variant": "#444937",
+                        "on-primary-container": "#ac9181",
+                        "tertiary-fixed-dim": "#ffb59c",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1a1c1a",
+                        "inverse-surface": "#2f312f",
+                        "outline": "#81756e",
+                        "surface-bright": "#faf9f6",
+                        "secondary-fixed-dim": "#c4c9b1",
+                        "on-tertiary-fixed": "#390c00",
+                        "secondary-container": "#e0e5cc",
+                        "on-tertiary-container": "#ff652a",
+                        "surface-container": "#efeeeb",
+                        "primary-fixed-dim": "#dec1af",
+                        "primary-fixed": "#fbddca",
+                        "on-tertiary-fixed-variant": "#832700",
+                        "surface": "#faf9f6",
+                        "secondary": "#5c614d",
+                        "on-secondary-fixed": "#191d0e",
+                        "on-primary-fixed": "#28180d",
+                        "surface-tint": "#705a4c",
+                        "on-background": "#1a1c1a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dbdad7",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#e0e5cc",
+                        "tertiary": "#370b00",
+                        "tertiary-container": "#5a1800",
+                        "outline-variant": "#d2c4bc",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-overlap": "-32px",
+                        "base": "8px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "48px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Syne"],
+                        "label-sm": ["Hanken Grotesk"],
+                        "label-md": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "display-xl": ["Syne"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Syne"],
+                        "headline-lg": ["Syne"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-xl": ["80px", {"lineHeight": "88px", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["32px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-lg": ["48px", {"lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hard-drop-shadow {
+            box-shadow: 4px 4px 0px 0px #ff652a;
+        }
+        .hard-drop-shadow:hover {
+            box-shadow: 6px 6px 0px 0px #ff652a;
+            transform: translate(-2px, -2px);
+        }
+        .zine-overlap {
+            margin-bottom: -32px;
+            z-index: 10;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #faf9f6;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #26170c;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md custom-scrollbar overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md border-b-2 border-primary flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 w-full">
+<div class="flex items-center gap-4">
+<button class="text-primary hover:text-on-tertiary-container transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[32px]">menu</span>
+</button>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg tracking-tighter text-primary">BLOKSEKEN</h1>
+</div>
+<nav class="hidden md:flex gap-8">
+<a class="text-on-tertiary-container font-bold font-label-md text-label-md hover:text-on-tertiary-container transition-colors duration-200" href="#">The Drop</a>
+<a class="text-primary font-medium font-label-md text-label-md hover:text-on-tertiary-container transition-colors duration-200" href="#">Vintage</a>
+<a class="text-primary font-medium font-label-md text-label-md hover:text-on-tertiary-container transition-colors duration-200" href="#">Upcycled</a>
+<a class="text-primary font-medium font-label-md text-label-md hover:text-on-tertiary-container transition-colors duration-200" href="#">Sustainability</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-primary hover:text-on-tertiary-container transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[28px]">shopping_bag</span>
+</button>
+</div>
+</header>
+<main class="pt-32 pb-24">
+<!-- Hero Header -->
+<section class="px-margin-mobile md:px-margin-desktop mb-16">
+<div class="relative">
+<h2 class="font-display-xl text-[64px] md:text-display-xl leading-none uppercase text-primary italic z-10 relative">
+                    THE DROP
+                </h2>
+<div class="absolute -top-4 -left-2 text-on-tertiary-container opacity-20 font-display-xl text-display-xl select-none pointer-events-none">
+                    LATEST_RELEASE
+                </div>
+</div>
+<!-- Horizontal Filter Bar -->
+<div class="mt-12 flex flex-wrap items-center gap-4 border-y-2 border-primary py-4">
+<span class="font-label-md text-label-md uppercase mr-4">Filter By:</span>
+<button class="px-6 py-2 bg-primary text-on-primary font-label-md text-label-md tracking-widest hover:bg-on-tertiary-container transition-colors">ALL</button>
+<button class="px-6 py-2 border-2 border-primary text-primary font-label-md text-label-md tracking-widest hover:bg-surface-container-high transition-colors">VINTAGE</button>
+<button class="px-6 py-2 border-2 border-primary text-primary font-label-md text-label-md tracking-widest hover:bg-surface-container-high transition-colors">UPCYCLED</button>
+<button class="px-6 py-2 border-2 border-primary text-primary font-label-md text-label-md tracking-widest hover:bg-surface-container-high transition-colors">BRANDED</button>
+<div class="ml-auto hidden lg:block text-outline font-label-sm text-label-sm">SHOWING 24 OF 142 ITEMS</div>
+</div>
+</section>
+<!-- Product Grid -->
+<section class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter lg:gap-12">
+<!-- Product 1 -->
+<div class="group cursor-pointer">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container mb-4">
+<img alt="Vintage graphic tees" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida/ADBb0ujl8madM5tqbNYFZQpj-o3aeNvyNUxo1du6mzGDejtacpKrdcFz4c-UsC54-37G74Uiwo6y2j3syevWog-rjF4ftGVphDmWCVLhknvoU5HF95eLa5jY60ULJzQ4a-MyCyUdiehTZsKOU5Rb17PAHWCDxZ4Dyl7aqJZA8o6YWfs5FU6PEHfEQ-vEP07r-bcXoQirvqlxeruW7qb2sk6EaDfZY1iH2rilkF6wc3JYAsGQSPPFAhInfn1_LSw"/>
+<div class="absolute bottom-4 left-4 bg-on-tertiary-container text-white px-3 py-1 font-label-md text-label-md hard-drop-shadow">
+                            $45.00
+                        </div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[20px] uppercase text-primary leading-tight">90s Graphic Tee</h3>
+<p class="text-outline font-label-sm text-label-sm mt-1">VINTAGE / SIZE L</p>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:text-on-tertiary-container transition-colors">add_shopping_cart</span>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="group cursor-pointer lg:mt-12">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container mb-4">
+<img alt="Vintage bomber jackets" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida/ADBb0ui6AfTurFk3bGCrhnw0CwexjjobMUnbwD83M7GjVvqyQ27EbFr8ii919c41pk3jaN0SH6wFQITeDlb0GwNZTHr6VZa2JFgosqisoBE2wJWzRy1oDr43MZhAOLIKTMP8mDaDrcFnYEjLjROzJqobSHNHR_FnUp2c8k23rkn7xzl2Yp-739UxDCIjT87g9c-rZZjSdLAKR1C7qG2HYnpCajKbXd48o-37wgQD4fPiNnSrJCystnBR0zPhNgs"/>
+<div class="absolute bottom-4 left-4 bg-on-tertiary-container text-white px-3 py-1 font-label-md text-label-md hard-drop-shadow">
+                            $120.00
+                        </div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[20px] uppercase text-primary leading-tight">Vintage Bomber</h3>
+<p class="text-outline font-label-sm text-label-sm mt-1">BRANDED / SIZE M</p>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:text-on-tertiary-container transition-colors">add_shopping_cart</span>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="group cursor-pointer">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container mb-4">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A high-quality studio photograph of a thick, heavy cotton sweatshirt in a charcoal grey color. The garment is laid out with deliberate folds on a raw concrete surface, creating a minimalist and industrial vibe. Natural side-lighting highlights the tactile texture of the fabric and the reinforced stitching. The atmosphere is cold, modern, and focused on premium streetwear essentials." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-o8FDwtChP_YkZwpCZO7lQjsLpDzAmykDJmESltryPFkq3zxeX7eNkPy9JR95Ej0u5eP9S5RdPZa0c9O5wS07KxJtXvAyWcyJV7WKTZR0MZWf_v5q5bygNW_V4cMWnen37f42NIxRmMnet19vIcyWmK3eqbJMfjOts-S-NydFLVcGQmT3BmHeM_gk_13k0ADjZJzm6cOt-F297aLgRI5GyKvc0w0csRogBy5XyNaINeLotruunxiMwuXZTRVZ2GVHgItFtWo3Htw"/>
+<div class="absolute bottom-4 left-4 bg-on-tertiary-container text-white px-3 py-1 font-label-md text-label-md hard-drop-shadow">
+                            $75.00
+                        </div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[20px] uppercase text-primary leading-tight">Heavy Sweatshirt</h3>
+<p class="text-outline font-label-sm text-label-sm mt-1">UPCYCLED / SIZE XL</p>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:text-on-tertiary-container transition-colors">add_shopping_cart</span>
+</div>
+</div>
+<!-- Product 4 -->
+<div class="group cursor-pointer lg:mt-12">
+<div class="relative overflow-hidden aspect-[3/4] bg-surface-container mb-4">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A pair of well-preserved heritage sneakers with a classic leather silhouette, styled in a minimalist studio setting. The shoes feature subtle cream and forest green accents, reflecting a timeless streetwear aesthetic. They are placed on a stack of vintage fashion magazines, emphasizing the connection between history and modern style. The lighting is soft and editorial, casting gentle shadows on a clean off-white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_6rxqEVnGvIPKYwFOXdyN027du1jpyU_8aYD9wEXqO-GhckRWezcVJm2Lt9YICJWzwev_CiC1cdRIFHcgaMfKVB2IeiCKbPW6MawFSxIhJiJiVxavFRb3nESKzcisCYEUjv8dy0tAvjhyuhSJcc4-bt3OsBWINK1jrflrtfHJdfZFbPN1ypyuQxDiT4_Rbeko-EsLLVYjUh2HLai6nLSaYwiRr29RVjJturQh-ni_ZhwzEM8NqqU1E0Ri_dlHCGSft-1Y8XT4VPU"/>
+<div class="absolute bottom-4 left-4 bg-on-tertiary-container text-white px-3 py-1 font-label-md text-label-md hard-drop-shadow">
+                            $110.00
+                        </div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[20px] uppercase text-primary leading-tight">Heritage Kicks</h3>
+<p class="text-outline font-label-sm text-label-sm mt-1">VINTAGE / SIZE 10</p>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:text-on-tertiary-container transition-colors">add_shopping_cart</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Editor's Choice Section -->
+<section class="my-32 bg-primary py-24 px-margin-mobile md:px-margin-desktop overflow-hidden relative">
+<div class="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+<div class="lg:col-span-5 text-on-primary z-10">
+<p class="font-label-md text-label-md text-on-tertiary-container tracking-[0.2em] mb-6">EDITOR'S SELECTION_004</p>
+<h2 class="font-headline-lg text-headline-lg leading-none mb-8">THE RECLAIMED SET</h2>
+<p class="font-body-lg text-body-lg mb-10 opacity-80 max-w-md">
+                        A curated capsule of items that bridge the gap between street utility and archival preservation. Each piece is unique, authenticated, and ready for a second life.
+                    </p>
+<button class="bg-on-tertiary-container text-primary px-10 py-4 font-label-md text-label-md hard-drop-shadow hover:translate-y-[-4px] transition-all uppercase tracking-widest">
+                        Explore Capsule
+                    </button>
+</div>
+<div class="lg:col-span-7 relative mt-12 lg:mt-0">
+<div class="relative aspect-square md:aspect-video lg:aspect-[4/3] w-full overflow-hidden border-4 border-on-tertiary-container">
+<img alt="Streetwear accessories" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0uhBmk-sdjOT6UF7nfIsxKGaXZRzs7hwW-P0AgZFZKkFEhnafOLYrlE512nb_pOBzqhKM2lP8RtQRFqCn9ok0nrO3vBqF7IS2bPJvrr7EHkwvRDvKCphKfTo_R2DfuieahcMs9I8V3nSy-lA6_X2uznusCIuHhJ1QXa9Ad2Q66IN5--iomghX_gj-KQ2P8GNfTJwjPjEhEdCw1meyxpz1nIAs6TVKHkgcAXu-hv_BimGblTSh1WFKcvPXK0"/>
+</div>
+<!-- Zine Offset Element -->
+<div class="hidden md:block absolute -bottom-12 -right-12 w-64 h-80 bg-surface border-2 border-primary p-6 z-20">
+<p class="font-label-sm text-label-sm text-primary mb-4 opacity-60">ITEM_REF: ACC_992</p>
+<h4 class="font-headline-md text-[24px] text-primary leading-none mb-4">ARCHIVE ACCS</h4>
+<div class="w-full h-40 bg-surface-container-high overflow-hidden">
+<img alt="Detail" class="w-full h-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida/ADBb0uhBmk-sdjOT6UF7nfIsxKGaXZRzs7hwW-P0AgZFZKkFEhnafOLYrlE512nb_pOBzqhKM2lP8RtQRFqCn9ok0nrO3vBqF7IS2bPJvrr7EHkwvRDvKCphKfTo_R2DfuieahcMs9I8V3nSy-lA6_X2uznusCIuHhJ1QXa9Ad2Q66IN5--iomghX_gj-KQ2P8GNfTJwjPjEhEdCw1meyxpz1nIAs6TVKHkgcAXu-hv_BimGblTSh1WFKcvPXK0"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Large Background Text -->
+<div class="absolute -bottom-20 -left-10 text-[200px] font-bold text-on-primary/5 select-none pointer-events-none leading-none">
+                RECLAIM
+            </div>
+</section>
+<!-- Newsletter Section -->
+<section class="px-margin-mobile md:px-margin-desktop mb-32">
+<div class="bg-primary-container p-12 md:p-24 flex flex-col items-center text-center">
+<h3 class="font-display-xl text-[48px] md:text-[64px] text-on-primary-container leading-none mb-6">JOIN THE CIRCLE</h3>
+<p class="font-body-lg text-body-lg text-on-primary-container/60 mb-12 max-w-2xl">
+                    Get early access to drops, exclusive archival stories, and our monthly sustainability report. Conscious hype delivered directly.
+                </p>
+<form class="flex flex-col md:flex-row gap-4 w-full max-w-xl">
+<input class="flex-grow bg-transparent border-2 border-on-primary-container text-on-primary px-6 py-4 font-label-md text-label-md focus:outline-none focus:border-on-tertiary-container placeholder:text-on-primary-container/40" placeholder="YOUR@EMAIL.COM" type="email"/>
+<button class="bg-on-tertiary-container text-primary px-8 py-4 font-label-md text-label-md tracking-widest hover:brightness-110 transition-all uppercase" type="submit">
+                        Subscribe
+                    </button>
+</form>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary w-full py-12 px-margin-mobile md:px-margin-desktop border-t-2 border-primary">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter max-w-container-max mx-auto">
+<div class="flex flex-col gap-6">
+<h2 class="font-headline-lg text-headline-lg text-on-tertiary-container">BLOKSEKEN</h2>
+<p class="text-on-primary/80 font-body-md text-body-md pr-8">
+                    Curating conscious hype for the next generation of style. Sustainable, archival, and uncompromising.
+                </p>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-on-tertiary-container font-label-md text-label-md uppercase tracking-widest mb-2">Navigation</h4>
+<a class="text-on-primary/80 hover:text-on-tertiary-container hover:underline font-label-md text-label-md transition-all" href="#">Archives</a>
+<a class="text-on-primary/80 hover:text-on-tertiary-container hover:underline font-label-md text-label-md transition-all" href="#">Shipping</a>
+<a class="text-on-primary/80 hover:text-on-tertiary-container hover:underline font-label-md text-label-md transition-all" href="#">Privacy</a>
+<a class="text-on-primary/80 hover:text-on-tertiary-container hover:underline font-label-md text-label-md transition-all" href="#">Sustainability Report</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-on-tertiary-container font-label-md text-label-md uppercase tracking-widest mb-2">Connect</h4>
+<a class="text-on-primary/80 hover:text-on-tertiary-container hover:underline font-label-md text-label-md transition-all" href="#">Instagram</a>
+<a class="text-on-primary/80 hover:text-on-tertiary-container hover:underline font-label-md text-label-md transition-all" href="#">TikTok</a>
+<a class="text-on-primary/80 hover:text-on-tertiary-container hover:underline font-label-md text-label-md transition-all" href="#">Discord</a>
+</div>
+<div class="flex flex-col gap-6">
+<h4 class="text-on-tertiary-container font-label-md text-label-md uppercase tracking-widest mb-2">Location</h4>
+<p class="text-on-primary/80 font-body-md text-body-md">
+                    Studio 42, Creative District<br/>Berlin, Germany
+                </p>
+<div class="mt-4 text-on-primary/40 font-label-sm text-label-sm">
+                    © 2024 BLOKSEKEN. CONSCIOUS HYPE.
+                </div>
+</div>
+</div>
+</footer>
+<script>
+        // Smooth hover effect for product cards
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const img = card.querySelector('img');
+                if(img) img.style.transform = 'scale(1.05)';
+            });
+            card.addEventListener('mouseleave', () => {
+                const img = card.querySelector('img');
+                if(img) img.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>
