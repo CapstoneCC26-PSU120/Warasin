@@ -1,4 +1,5 @@
 import prisma from "../config/db.js";
+import axios from "axios";
 
 export const submitAnswer = async (req, res) => {
   try {
@@ -10,20 +11,17 @@ export const submitAnswer = async (req, res) => {
       });
     }
 
-    // DUMMY AI RESPONSE
-    const aiResult = {
-      score: 72,
-      category: "Medium Stress",
-      advice: "Try improving sleep quality and reduce stress level.",
-    };
+    const aiResponse = await axios.post("http://127.0.0.1:8000/predict", answers);
+
+    const aiResult = aiResponse.data;
 
     const history = await prisma.chatHistory.create({
       data: {
         userId: req.user.userId,
         answers,
-        score: aiResult.score,
-        category: aiResult.category,
-        advice: aiResult.advice,
+        score: aiResult.class_index,
+        category: aiResult.label,
+        advice: aiResult.message,
       },
     });
 
@@ -40,7 +38,7 @@ export const submitAnswer = async (req, res) => {
 
     res.status(500).json({
       message: "Failed to process chatbot",
-      error: error.message,
+      error: error.response?.data || error.message,
     });
   }
 };
@@ -74,6 +72,44 @@ export const getHistory = async (req, res) => {
     res.status(500).json({
       message: "Failed to get history",
       error: error.message,
+    });
+  }
+};
+
+export const getHistoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const history = await prisma.chatHistory.findFirst({
+      where: {
+        id,
+        userId: req.user.userId,
+      },
+      select: {
+        id: true,
+        answers: true,
+        score: true,
+        category: true,
+        advice: true,
+        createdAt: true,
+      },
+    });
+
+    if (!history) {
+      return res.status(404).json({
+        message: "History not found",
+      });
+    }
+
+    res.json({
+      userId: req.user.userId,
+      data: [history],
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to get history detail",
     });
   }
 };
