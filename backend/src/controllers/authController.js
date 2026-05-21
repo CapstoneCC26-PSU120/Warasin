@@ -45,6 +45,7 @@ export const register = async (req, res) => {
         name: user.name,
         email: user.email,
         createdAt: user.createdAt,
+        avatarUrl: user.avatarUrl,
       },
     });
   } catch (error) {
@@ -91,6 +92,7 @@ export const login = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        avatarUrl: user.avatarUrl,
       },
     });
   } catch (error) {
@@ -115,6 +117,7 @@ export const getMe = async (req, res) => {
         name: user.name,
         email: user.email,
         birthDate: user.birthDate,
+        avatarUrl: user.avatarUrl,
       },
     });
   } catch (error) {
@@ -131,7 +134,7 @@ export const logout = (req, res) => {
 // edit profile
 export const updateProfile = async (req, res) => {
   try {
-    const { name, birthDate, avatarUrl } = req.body;
+    const { name, birthDate } = req.body;
 
     const updatedUser = await prisma.user.update({
       where: {
@@ -140,7 +143,6 @@ export const updateProfile = async (req, res) => {
       data: {
         name,
         birthDate: birthDate ? new Date(birthDate) : null,
-        avatarUrl,
       },
     });
 
@@ -151,7 +153,7 @@ export const updateProfile = async (req, res) => {
         name: updatedUser.name,
         email: updatedUser.email,
         birthDate: updatedUser.birthDate,
-        avatarUrl: updatedUser.avatarUrl,
+        avatarUrl: user.avatarUrl,
       },
     });
   } catch (error) {
