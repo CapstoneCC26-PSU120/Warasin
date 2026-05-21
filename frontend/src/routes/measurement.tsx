@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Chatbot } from "@/components/Chatbot";
-import { useState } from "react";
-import { Camera, MessageCircle, Upload, Sparkles } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { Camera, MessageCircle, Upload, Sparkles, Loader2 } from "lucide-react";
+import api from "@/lib/api";
 
 export const Route = createFileRoute("/measurement")({
   component: MeasurementPage,
@@ -10,6 +11,40 @@ export const Route = createFileRoute("/measurement")({
 
 function MeasurementPage() {
   const [activeTab, setActiveTab] = useState<"face" | "chat">("chat");
+  const navigate = useNavigate({ from: "/measurement" });
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await api.post("/face", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (response.data && response.data.data) {
+        navigate({
+          to: "/result",
+          search: { id: response.data.data.id || undefined },
+          state: response.data.data,
+        });
+      }
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert("Failed to analyze face. Please try again.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      if (cameraInputRef.current) cameraInputRef.current.value = "";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-hero relative overflow-hidden">
@@ -63,19 +98,45 @@ function MeasurementPage() {
         {/* Content Area */}
         <div className="w-full max-w-3xl animate-fade-up-delay-2">
           {activeTab === "face" ? (
-            <div className="glass rounded-3xl p-8 shadow-card w-full min-h-[450px]">
+            <div className="glass rounded-3xl p-8 shadow-card w-full min-h-[400px]">
               <h2 className="text-xl font-semibold text-foreground mb-2">Upload a face photo</h2>
               <p className="text-muted-foreground mb-10 text-sm">
                 A clear, well-lit selfie works best. Your image stays on your device.
               </p>
 
-              <div className="border-2 border-dashed border-primary/30 rounded-2xl bg-primary/5 flex flex-col items-center justify-center p-16 transition-all duration-300 hover:bg-primary/10 hover:border-primary/50 cursor-pointer group">
+              <input
+                type="file"
+                accept="image/png, image/jpeg"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+              <input
+                type="file"
+                accept="image/png, image/jpeg"
+                capture="user"
+                className="hidden"
+                ref={cameraInputRef}
+                onChange={handleFileChange}
+              />
+
+              <div
+                className={`border-2 border-dashed border-primary/30 rounded-2xl bg-primary/5 flex flex-col items-center justify-center p-10 transition-all duration-300 hover:bg-primary/10 hover:border-primary/50 cursor-pointer group ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm group-hover:bg-primary/20">
                   <Upload className="w-7 h-7 text-primary" />
                 </div>
-                <span className="font-medium text-foreground">Click to upload</span>
+                <span className="font-medium text-foreground">Upload File</span>
                 <span className="text-xs text-muted-foreground mt-1.5">PNG or JPG, up to 10MB</span>
               </div>
+
+              {isUploading && (
+                <div className="mt-8 flex flex-col items-center justify-center text-primary animate-pulse">
+                  <Loader2 className="w-8 h-8 animate-spin mb-2" />
+                  <p className="font-medium">Analyzing your face...</p>
+                </div>
+              )}
             </div>
           ) : (
             <Chatbot />

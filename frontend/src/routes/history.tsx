@@ -13,7 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import api from "@/lib/api";
-import testHistory from "@/lib/testHistory.json";
+// import testHistory from "@/lib/testHistory.json";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -54,15 +54,21 @@ interface HistoryItem {
 }
 
 function HistoryPage() {
-  const { data: history, isLoading } = useQuery<HistoryItem[]>({
+  const {
+    data: history,
+    isLoading,
+    refetch,
+  } = useQuery<HistoryItem[]>({
     queryKey: ["history"],
     queryFn: async () => {
       try {
         const res = await api.get("/chatbot/history");
-        if (res.data && res.data.length > 0) return res.data;
-        return testHistory.data as HistoryItem[];
+        console.log(res.data);
+        if (res.data && res.data.data) return res.data.data;
+        return [];
       } catch (error) {
-        return testHistory.data as HistoryItem[];
+        console.error("Failed to fetch history:", error);
+        return [];
       }
     },
   });
@@ -89,9 +95,11 @@ function HistoryPage() {
     // TODO: Connect this to your backend API to delete the history item
     console.log("Delete history item with ID:", id);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      toast.success("History item deleted successfully.");
+      const res = await api.delete(`/chatbot/history/${id}`);
+      if (res.data) {
+        toast.success("History item deleted successfully.");
+        refetch();
+      }
     } catch (error) {
       toast.error("Failed to delete history item.");
     }
@@ -257,8 +265,8 @@ function HistoryPage() {
                         <TableCell className="hidden md:table-cell text-muted-foreground text-sm">
                           <div className="flex items-center gap-2">
                             <Info className="h-3.5 w-3.5" />
-                            {item.answers.Occupation || "N/A"} • Sleep:{" "}
-                            {item.answers["Sleep Duration"] || "N/A"}h
+                            {item.answers.occupation || "N/A"} • Sleep:{" "}
+                            {item.answers.sleep_duration || "N/A"}h
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -270,9 +278,9 @@ function HistoryPage() {
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -282,12 +290,19 @@ function HistoryPage() {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete check-in record?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This will permanently remove this stress measurement from your history. This action cannot be undone.
+                                    This will permanently remove this stress measurement from your
+                                    history. This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel variant="outline" size="default" className="border-border hover:bg-accent/5">Cancel</AlertDialogCancel>
-                                  <AlertDialogAction 
+                                  <AlertDialogCancel
+                                    variant="outline"
+                                    size="default"
+                                    className="border-border hover:bg-accent/5"
+                                  >
+                                    Cancel
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction
                                     variant="destructive"
                                     size="default"
                                     onClick={() => handleDelete(item.id)}
