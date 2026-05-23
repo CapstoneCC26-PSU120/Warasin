@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput, useLogin } from "../hooks/useAuth";
-import { Activity, Mail, Lock } from "lucide-react";
+import { Activity, Mail, Lock, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -33,83 +33,100 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-[#e0f2fe] via-white to-[#fef08a] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center p-4 bg-gradient-to-br from-sky-50 via-white to-amber-50/60">
+      {/* Decorative blobs */}
+      <div className="blob blob-blue animate-blob w-80 h-80 -top-32 -left-32" />
+      <div className="blob blob-yellow animate-blob-delay-2 w-72 h-72 -bottom-28 -right-28" />
+      <div className="blob blob-pink animate-blob-delay-4 w-56 h-56 top-1/4 right-0" />
+
       {/* Logo */}
-      <div className="flex items-center gap-2 mb-8 text-[#0284c7]">
-        <div className="bg-[#0284c7] p-2 rounded-full text-white">
-          <Activity size={24} />
+      <div className="relative z-10 flex items-center gap-2.5 mb-8 animate-fade-up">
+        <div className="bg-primary p-2.5 rounded-xl text-primary-foreground shadow-soft">
+          <Activity size={22} />
         </div>
-        <span className="text-2xl font-bold tracking-tight text-slate-800">CalmCheck</span>
+        <span className="text-2xl font-bold tracking-tight text-foreground">
+          Waras<span className="text-accent-bright">in</span>
+        </span>
       </div>
 
       {/* Card */}
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-xl p-8 border border-slate-100">
+      <div className="relative z-10 glass w-full max-w-md rounded-3xl shadow-card p-8 animate-fade-up-delay-1">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Welcome back</h1>
-          <p className="text-slate-500 text-sm">Log in to continue your wellness journey.</p>
+          <h1 className="text-2xl font-bold text-foreground mb-1.5">Welcome back 👋</h1>
+          <p className="text-muted-foreground text-sm">Log in to continue your wellness journey.</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Email</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <Mail size={18} />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                <Mail size={17} />
               </div>
               <input
                 {...register("email")}
                 type="email"
                 placeholder="you@example.com"
-                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0284c7] focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl bg-background/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all text-sm"
               />
             </div>
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+            {errors.email && <p className="text-destructive text-xs mt-1">{errors.email.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Password</label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <Lock size={18} />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                <Lock size={17} />
               </div>
               <input
                 {...register("password")}
                 type="password"
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0284c7] focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl bg-background/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all text-sm"
               />
             </div>
             {errors.password && (
-              <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+              <p className="text-destructive text-xs mt-1">{errors.password.message}</p>
             )}
           </div>
 
           {error && (
-            <p className="text-red-500 text-sm text-center">
+            <div className="bg-destructive/10 text-destructive px-4 py-2.5 rounded-xl text-sm font-medium text-center animate-fade-up border border-destructive/20">
               {(error as any)?.response?.data?.message || "Login failed"}
-            </p>
+            </div>
           )}
 
           <button
             type="submit"
             disabled={isPending}
-            className="w-full bg-[#0284c7] hover:bg-[#0369a1] text-white font-medium py-2.5 rounded-xl transition-colors mt-2"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2.5 rounded-xl transition-all duration-200 mt-1 flex items-center justify-center gap-2 shadow-sm hover:shadow-soft active:scale-[0.98] disabled:opacity-60"
           >
-            {isPending ? "Logging in..." : "Log in"}
+            {isPending ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Logging in...
+              </span>
+            ) : (
+              <>
+                Log in
+                <ArrowRight size={16} />
+              </>
+            )}
           </button>
 
-          <div className="relative flex items-center py-4">
-            <div className="grow border-t border-slate-200"></div>
-            <span className="shrink-0 mx-4 text-slate-400 text-sm">or</span>
-            <div className="grow border-t border-slate-200"></div>
+          <div className="relative flex items-center py-3">
+            <div className="grow border-t border-border" />
+            <span className="shrink-0 mx-4 text-muted-foreground text-xs font-medium">or</span>
+            <div className="grow border-t border-border" />
           </div>
 
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-background border border-border hover:bg-muted text-foreground font-medium py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2.5 active:scale-[0.98]"
           >
-            <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 fill="#4285F4"
@@ -130,9 +147,9 @@ function Login() {
             Continue with Google
           </button>
 
-          <p className="text-center text-sm text-slate-500 mt-4">
+          <p className="text-center text-sm text-muted-foreground mt-3">
             New here?{" "}
-            <Link to="/register" className="text-[#0284c7] hover:underline">
+            <Link to="/register" className="text-primary hover:text-primary/80 font-medium transition-colors">
               Create an account
             </Link>
           </p>
@@ -140,8 +157,8 @@ function Login() {
       </div>
 
       {/* Footer Text */}
-      <p className="mt-8 text-slate-500 text-sm">
-        By continuing you agree to our calm and <span className="text-amber-500">friendly</span>{" "}
+      <p className="relative z-10 mt-8 text-muted-foreground text-xs animate-fade-up-delay-2">
+        By continuing you agree to our calm and <span className="text-accent-bright font-medium">friendly</span>{" "}
         terms.
       </p>
     </div>

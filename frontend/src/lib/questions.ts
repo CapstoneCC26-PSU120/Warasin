@@ -16,8 +16,8 @@ export const questions = [
     //   { label: "36–45", value: 40 },
     //   { label: "46+", value: 50 },
     // ],
-    placeholder: "Masukkan usia kamu",
-    min: 1,
+    placeholder: "Masukkan usia kamu (minimal 18)",
+    min: 18,
     max: 100,
   },
   {
