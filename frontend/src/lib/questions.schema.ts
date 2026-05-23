@@ -6,7 +6,7 @@ export const answerSchema = z.object({
   }),
   age: z.coerce
     .number({ message: "Usia harus berupa angka" })
-    .min(1, "Usia minimal 1")
+    .min(18, "Usia minimal 18 tahun")
     .max(100, "Usia maksimal 100"),
   occupation: z.enum(
     [

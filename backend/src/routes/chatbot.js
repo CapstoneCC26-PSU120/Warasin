@@ -6,7 +6,7 @@ import {
   getHistoryById,
   deleteHistory,
 } from "../controllers/chatbotController.js";
-import router from "./auth.js";
+const router = express.Router();
 
 router.post("/answer", authMiddleware, submitAnswer);
 router.get("/history", authMiddleware, getHistory);

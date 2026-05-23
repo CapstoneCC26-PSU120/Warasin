@@ -63,7 +63,6 @@ function HistoryPage() {
     queryFn: async () => {
       try {
         const res = await api.get("/chatbot/history");
-        console.log(res.data);
         if (res.data && res.data.data) return res.data.data;
         return [];
       } catch (error) {

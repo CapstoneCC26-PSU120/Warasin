@@ -59,6 +59,18 @@ app.add_middleware(
 )
 
 # ──────────────────────────────────────────
+#  Patch Dense layer agar kompatibel dengan model
+#  yang disimpan oleh versi Keras berbeda
+# ──────────────────────────────────────────
+_OriginalDenseInit = layers.Dense.__init__
+
+def _patched_dense_init(self, *args, **kwargs):
+    kwargs.pop('quantization_config', None)
+    _OriginalDenseInit(self, *args, **kwargs)
+
+layers.Dense.__init__ = _patched_dense_init
+
+# ──────────────────────────────────────────
 #  Load model & preprocessor saat server start
 # ──────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -67,10 +79,18 @@ try:
     preprocessor = joblib.load(os.path.join(BASE_DIR, "models", "prepocessor.save"))
     model = load_model(
         os.path.join(BASE_DIR, "models", "stress_level_prediction_model.keras"),
-        custom_objects={"CustomDense": CustomDense}
+        custom_objects={"CustomDense": CustomDense},
+        compile=False
+    )
+    model.compile(
+        optimizer='adam',
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy']
     )
     print("✅ Model dan preprocessor berhasil dimuat")
 except Exception as e:
+    import traceback
+    traceback.print_exc()
     print(f"❌ Gagal memuat model: {e}")
     preprocessor = None
     model = None

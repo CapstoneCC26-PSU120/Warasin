@@ -94,14 +94,25 @@ function CircularProgress({ score, color }: { score: number; color: string }) {
 function ResultPage() {
   const router = useRouter();
   const { id } = useSearch({ from: "/result" });
-  const state = router.state.location.state as unknown as ResultState | undefined;
+  const rawState = router.state.location.state as unknown as ResultState | undefined;
+  // TanStack Router returns {} when no state is passed — check for actual data
+  const state =
+    rawState && typeof rawState === "object" && "score" in rawState && "category" in rawState
+      ? rawState
+      : undefined;
 
   // Fetch history if ID is provided and state is missing
   const { data: historyData, isLoading } = useQuery({
     queryKey: ["history", id],
     queryFn: async () => {
-      const res = await api.get("/chatbot/history");
-      return res.data.find((item: any) => item.id === id);
+      const res = await api.get(`/chatbot/history/${id}`);
+      if (!res.data || !res.data.data) {
+        return null;
+      }
+      if (Array.isArray(res.data.data)) {
+        return res.data.data[0] || null;
+      }
+      return res.data.data;
     },
     enabled: !!id && !state,
   });
@@ -115,14 +126,14 @@ function ResultPage() {
           category: historyData.category,
           advice: historyData.advice,
         }
-      : (!id || id === "test" || testHistory.data.some((item: any) => item.id === id) 
-          ? {
-              score: testHistory.data.find((item: any) => item.id === id)?.score || testItem.score,
-              category: testHistory.data.find((item: any) => item.id === id)?.category || testItem.category,
-              advice: testHistory.data.find((item: any) => item.id === id)?.advice || testItem.advice,
-            }
-          : null));
-
+      : !id || id === "test" || testHistory.data.some((item: any) => item.id === id)
+        ? {
+            score: testHistory.data.find((item: any) => item.id === id)?.score || testItem.score,
+            category:
+              testHistory.data.find((item: any) => item.id === id)?.category || testItem.category,
+            advice: testHistory.data.find((item: any) => item.id === id)?.advice || testItem.advice,
+          }
+        : null);
 
   if (isLoading) {
     return (
