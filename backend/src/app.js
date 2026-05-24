@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import passport from "./config/passport.js";
 import authRoutes from "./routes/auth.js";
 import chatbotRoutes from "./routes/chatbot.js";
+import faceRoutes from "./routes/faceRoutes.js";
 import cors from "cors";
 
 const app = express();
@@ -24,5 +25,6 @@ app.get("/", (req, res) => {
 // toute auth
 app.use("/api/auth", authRoutes);
 app.use("/api/chatbot", chatbotRoutes);
+app.use("/api/face", faceRoutes);
 
 export default app;
