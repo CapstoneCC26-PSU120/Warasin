@@ -8,7 +8,9 @@ export const register = async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({
+        message: "All fields are required",
+      });
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -16,7 +18,9 @@ export const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({ message: "Email already used" });
+      return res.status(400).json({
+        message: "Email already used",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -44,12 +48,16 @@ export const register = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        avatarUrl: user.avatarUrl,
         createdAt: user.createdAt,
       },
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Register failed" });
+
+    res.status(500).json({
+      message: "Register failed",
+    });
   }
 };
 
@@ -59,7 +67,9 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
     }
 
     const user = await prisma.user.findUnique({
@@ -67,13 +77,17 @@ export const login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Wrong password" });
+      return res.status(400).json({
+        message: "Wrong password",
+      });
     }
 
     const token = generateToken(user.id);
@@ -91,22 +105,31 @@ export const login = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        avatarUrl: user.avatarUrl,
       },
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Login failed" });
+
+    res.status(500).json({
+      message: "Login failed",
+    });
   }
 };
 
+// Get Current User
 export const getMe = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
+      where: {
+        id: req.user.userId,
+      },
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
 
     res.json({
@@ -115,20 +138,28 @@ export const getMe = async (req, res) => {
         name: user.name,
         email: user.email,
         birthDate: user.birthDate,
+        avatarUrl: user.avatarUrl,
       },
     });
   } catch (error) {
-    res.status(401).json({ message: "Failed to get user" });
+    console.error(error);
+
+    res.status(401).json({
+      message: "Failed to get user",
+    });
   }
 };
 
-// logout
+// Logout
 export const logout = (req, res) => {
   res.clearCookie("token");
-  res.json({ message: "Logged out" });
+
+  res.json({
+    message: "Logged out",
+  });
 };
 
-// edit profile
+// Update Profile
 export const updateProfile = async (req, res) => {
   try {
     const { name, birthDate } = req.body;
@@ -150,6 +181,7 @@ export const updateProfile = async (req, res) => {
         name: updatedUser.name,
         email: updatedUser.email,
         birthDate: updatedUser.birthDate,
+        avatarUrl: updatedUser.avatarUrl,
       },
     });
   } catch (error) {
