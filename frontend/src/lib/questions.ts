@@ -1,0 +1,140 @@
+export const questions = [
+  {
+    field: "gender",
+    question: "Jenis kelamin kamu?",
+    options: [
+      { label: "Laki-laki", value: "Male" },
+      { label: "Perempuan", value: "Female" },
+    ],
+  },
+  {
+    field: "age",
+    question: "Berapa usia kamu?",
+    // options: [
+    //   { label: "18–25", value: 22 },
+    //   { label: "26–35", value: 30 },
+    //   { label: "36–45", value: 40 },
+    //   { label: "46+", value: 50 },
+    // ],
+    placeholder: "Masukkan usia kamu (minimal 18)",
+    min: 18,
+    max: 100,
+  },
+  {
+    field: "occupation",
+    question: "Pekerjaan kamu?",
+    options: [
+      { label: "Akuntan", value: "Accountant" },
+      { label: "Dokter", value: "Doctor" },
+      { label: "Insinyur / Engineer", value: "Engineer" },
+      { label: "Pengacara", value: "Lawyer" },
+      { label: "Manajer", value: "Manager" },
+      { label: "Perawat", value: "Nurse" },
+      { label: "Sales Representative", value: "Sales Representative" },
+      { label: "Salesperson", value: "Salesperson" },
+      { label: "Ilmuwan / Peneliti", value: "Scientist" },
+      { label: "Software Engineer", value: "Software Engineer" },
+      { label: "Guru / Pengajar", value: "Teacher" },
+    ],
+  },
+  {
+    field: "sleep_duration",
+    question: "Berapa lama kamu tidur per hari?",
+    // options: [
+    //   { label: "<5 jam", value: 4.5 },
+    //   { label: "5–6 jam", value: 5.5 },
+    //   { label: "6–7 jam", value: 6.5 },
+    //   { label: ">7 jam", value: 7.5 },
+    // ],
+    min: 0,
+    max: 24,
+    placeholder: "Masukkan jumlah jam tidur kamu 0-24",
+  },
+  {
+    field: "sleep_quality",
+    question: "Bagaimana kualitas tidur kamu?",
+    options: [
+      { label: "Sangat buruk", value: 1 },
+      { label: "Buruk", value: 3 },
+      { label: "Cukup", value: 5 },
+      { label: "Baik", value: 7 },
+      { label: "Sangat Baik", value: 10 },
+    ],
+  },
+  {
+    field: "physical_activity",
+    question: "Seberapa aktif kamu secara fisik?",
+    options: [
+      { label: "Rendah", value: 30 },
+      { label: "Sedang", value: 50 },
+      { label: "Tinggi", value: 70 },
+    ],
+  },
+
+  {
+    field: "bmi",
+    question: "Bagaimana kondisi berat badan kamu?",
+    options: [
+      { label: "Normal", value: "Normal" },
+      { label: "Overweight", value: "Overweight" },
+      { label: "Obese", value: "Obese" },
+    ],
+  },
+  {
+    field: "heart_rate",
+    question: "Berapa detak jantung istirahat Anda (resting heart rate)?",
+    // options: [
+    //   { label: "<70 bpm", value: 65 },
+    //   { label: "70–90 bpm", value: 80 },
+    //   { label: ">90 bpm", value: 95 },
+    // ],
+    min: 40,
+    max: 120,
+    placeholder: "Normal: 60–100 bpm. Bisa dicek dengan smartwatch atau tensimeter.",
+  },
+  {
+    field: "daily_steps",
+    question: "Berapa rata-rata langkah harian kamu?",
+    // options: [
+    //   { label: "<3000 langkah", value: 2000 },
+    //   { label: "3000–7000 langkah", value: 5000 },
+    //   { label: ">7000 langkah", value: 9000 },
+    // ],
+    min: 0,
+    max: 30000,
+    placeholder: "Bisa dilihat dari aplikasi kesehatan di ponsel Anda.",
+  },
+  {
+    field: "sleep_disorder",
+    question: "Apakah kamu mengalami gangguan tidur?",
+    options: [
+      { label: "Tidak", value: null },
+      { label: "Insomnia", value: "Insomnia" },
+      { label: "Sleep Apnea", value: "Sleep Apnea" },
+    ],
+  },
+  {
+    field: "bp_systolic",
+    question: "Tekanan darah (sistolik)?",
+    // options: [
+    //   { label: "Normal (120)", value: 120 },
+    //   { label: "Sedikit tinggi (130)", value: 130 },
+    //   { label: "Tinggi (140)", value: 140 },
+    // ],
+    min: 80,
+    max: 200,
+    placeholder: "Contoh: jika tensi Anda 120/80, maka angka atas (sistolik) = 120",
+  },
+  {
+    field: "bp_diastolic",
+    question: "Tekanan darah (diastolik)?",
+    // options: [
+    //   { label: "Normal (80)", value: 80 },
+    //   { label: "Sedikit tinggi (85)", value: 85 },
+    //   { label: "Tinggi (90)", value: 90 },
+    // ],
+    min: 50,
+    max: 130,
+    placeholder: "Contoh: jika tensi Anda 120/80, maka angka bawah (diastolik) = 80",
+  },
+];
