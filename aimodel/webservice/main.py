@@ -16,8 +16,9 @@ from datetime import datetime, timezone
 from PIL import Image
 
 # ══════════════════════════════════════════════════════════
-#  Custom Layer (harus didefinisikan sebelum load model)
+#  Custom Layer & Patches
 # ══════════════════════════════════════════════════════════
+
 @tf.keras.utils.register_keras_serializable()
 class CustomDense(layers.Layer):
     def __init__(self, units, **kwargs):
@@ -43,6 +44,17 @@ class CustomDense(layers.Layer):
         config = super().get_config()
         config.update({"units": self.units})
         return config
+
+
+# Patch Dense layer agar kompatibel dengan model
+# yang disimpan oleh versi Keras berbeda
+_OriginalDenseInit = layers.Dense.__init__
+
+def _patched_dense_init(self, *args, **kwargs):
+    kwargs.pop('quantization_config', None)
+    _OriginalDenseInit(self, *args, **kwargs)
+
+layers.Dense.__init__ = _patched_dense_init
 
 
 # ══════════════════════════════════════════════════════════
@@ -74,11 +86,14 @@ MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 # --- Stress ---
 STRESS_LABEL_MAP = {0: "Rendah", 1: "Sedang", 2: "Tinggi"}
+LABEL_MAP = STRESS_LABEL_MAP
+
 STRESS_MESSAGES = {
     "Rendah": "Tingkat stres Anda rendah. Pertahankan gaya hidup sehat Anda!",
     "Sedang": "Tingkat stres Anda sedang. Perhatikan pola tidur dan olahraga rutin.",
     "Tinggi": "Tingkat stres Anda tinggi. Disarankan untuk berkonsultasi dengan profesional."
 }
+
 VALID_GENDERS     = ["Male", "Female"]
 VALID_OCCUPATIONS = [
     "Accountant", "Doctor", "Engineer", "Lawyer", "Manager",
@@ -103,13 +118,23 @@ try:
     preprocessor = joblib.load(os.path.join(MODELS_DIR, "prepocessor.save"))
     stress_model = load_model(
         os.path.join(MODELS_DIR, "stress_level_prediction_model.keras"),
-        custom_objects={"CustomDense": CustomDense}
+        custom_objects={"CustomDense": CustomDense},
+        compile=False
     )
+    stress_model.compile(
+        optimizer='adam',
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy']
+    )
+    model = stress_model
     print("✅ Stress model & preprocessor berhasil dimuat")
 except Exception as e:
+    import traceback
+    traceback.print_exc()
     print(f"❌ Gagal memuat stress model: {e}")
     preprocessor = None
     stress_model = None
+    model = None
 
 # ── Emotion model ──
 try:
@@ -121,19 +146,19 @@ except Exception as e:
 
 
 # ══════════════════════════════════════════════════════════
-#  Helper: Preprocessing Gambar
+#  Helper: Preprocessing Gambar & Inferensi
 # ══════════════════════════════════════════════════════════
 def preprocess_image(image_bytes: bytes) -> np.ndarray:
     """
-    Konversi bytes gambar → tensor (1, 224, 224, 3) siap diinfer.
+    Konversi bytes gambar → tensor (1, 96, 96, 3) siap diinfer.
 
     Pipeline:
       1. Buka gambar apapun (RGB, RGBA, dsb.)
       2. Konversi ke Grayscale (L) → mensimulasikan kondisi training
       3. Konversi kembali ke RGB dengan menduplikat channel (R=G=B)
          sehingga model menerima input 3-channel tapi tanpa info warna
-      4. Resize ke ukuran input EfficientNet (224x224)
-      5. EfficientNet preprocessing: pixel / 127.5 - 1  →  range [-1, 1]
+      4. Resize ke ukuran input (96x96)
+      5. Preprocessing: pixel / 127.5 - 1  →  range [-1, 1]
     """
     img = Image.open(io.BytesIO(image_bytes))
 
@@ -150,7 +175,7 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
     img = img.resize(EMOTION_IMG_SIZE, Image.LANCZOS)
     arr = np.array(img, dtype=np.float32)
     arr = tf.keras.applications.efficientnet.preprocess_input(arr)
-    return np.expand_dims(arr, axis=0)  # (1, 224, 224, 3)
+    return np.expand_dims(arr, axis=0)
 
 
 def detect_face_opencv(image_bytes: bytes) -> bool:
@@ -168,185 +193,7 @@ def detect_face_opencv(image_bytes: bytes) -> bool:
     return len(faces) > 0
 
 
-# ══════════════════════════════════════════════════════════
-#  Schema: Stress Prediction
-# ══════════════════════════════════════════════════════════
-class StressInput(BaseModel):
-    Gender: str                   = Field(..., example="Female")
-    Age: int                      = Field(..., ge=18, le=100, example=28)
-    Occupation: str               = Field(..., example="Nurse")
-    Sleep_Duration: float         = Field(..., ge=0, le=24, example=6.5, alias="Sleep Duration")
-    Quality_of_Sleep: int         = Field(..., ge=1, le=10, example=5, alias="Quality of Sleep")
-    Physical_Activity_Level: int  = Field(..., ge=0, le=180, example=30, alias="Physical Activity Level")
-    BMI_Category: str             = Field(..., example="Normal", alias="BMI Category")
-    Heart_Rate: int               = Field(..., ge=40, le=200, example=80, alias="Heart Rate")
-    Daily_Steps: int              = Field(..., ge=0, le=50000, example=4000, alias="Daily Steps")
-    Sleep_Disorder: Optional[str] = Field(None, example=None, alias="Sleep Disorder")
-    BP_Systolic: int              = Field(..., ge=80, le=200, example=125)
-    BP_Diastolic: int             = Field(..., ge=50, le=130, example=82)
-
-    class Config:
-        populate_by_name = True
-
-    @validator("Gender")
-    def validate_gender(cls, v):
-        if v not in VALID_GENDERS:
-            raise ValueError(f"Gender harus salah satu dari: {VALID_GENDERS}")
-        return v
-
-    @validator("Occupation")
-    def validate_occupation(cls, v):
-        if v not in VALID_OCCUPATIONS:
-            raise ValueError(f"Occupation tidak valid. Pilihan: {VALID_OCCUPATIONS}")
-        return v
-
-    @validator("BMI_Category", pre=True)
-    def validate_bmi(cls, v):
-        if v not in VALID_BMI:
-            raise ValueError(f"BMI Category harus salah satu dari: {VALID_BMI}")
-        return v
-
-    @validator("Sleep_Disorder", pre=True)
-    def validate_disorder(cls, v):
-        if v not in VALID_DISORDERS:
-            raise ValueError(f"Sleep Disorder harus salah satu dari: {VALID_DISORDERS}")
-        return v
-
-
-class ProbabilityStress(BaseModel):
-    Rendah: float
-    Sedang: float
-    Tinggi: float
-
-class StressOutput(BaseModel):
-    success: bool
-    timestamp: str
-    data: dict
-
-
-# ══════════════════════════════════════════════════════════
-#  Schema: Emotion Output
-# ══════════════════════════════════════════════════════════
-class EmotionProbability(BaseModel):
-    Angry: float
-    Disgust: float
-    Fear: float
-    Happy: float
-    Sad: float
-    Surprise: float
-
-class EmotionData(BaseModel):
-    predicted_class: str
-    confidence: float
-    predictions_probability: EmotionProbability
-
-class EmotionOutput(BaseModel):
-    success: bool
-    timestamp: str
-    source: str   # "upload" | "camera"
-    data: EmotionData
-
-
-# ══════════════════════════════════════════════════════════
-#  Endpoints: Health
-# ══════════════════════════════════════════════════════════
-@app.get("/", tags=["Health"])
-def root():
-    return {
-        "status": "ok",
-        "message": "Stress & Emotion Detection API v2.0",
-        "docs": "/docs"
-    }
-
-@app.get("/health", tags=["Health"])
-def health_check():
-    return {
-        "status": "ok",
-        "stress_model_loaded": stress_model is not None,
-        "preprocessor_loaded": preprocessor is not None,
-        "emotion_model_loaded": emotion_model is not None,
-    }
-
-
-# ══════════════════════════════════════════════════════════
-#  Endpoint: Stress Prediction
-# ══════════════════════════════════════════════════════════
-@app.post(
-    "/predict/stress",
-    tags=["Stress Prediction"],
-    summary="Prediksi tingkat stres dari data kesehatan",
-    response_model=StressOutput
-)
-def predict_stress(data: StressInput):
-    """
-    Menerima data kesehatan (tidur, aktivitas, BMI, dll.) dan
-    mengembalikan prediksi tingkat stres: **Rendah / Sedang / Tinggi**.
-    """
-    if stress_model is None or preprocessor is None:
-        raise HTTPException(status_code=503, detail="Stress model belum siap, coba beberapa saat lagi.")
-
-    try:
-        df = pd.DataFrame([{
-            "Gender"                  : data.Gender,
-            "Age"                     : data.Age,
-            "Occupation"              : data.Occupation,
-            "Sleep Duration"          : data.Sleep_Duration,
-            "Quality of Sleep"        : data.Quality_of_Sleep,
-            "Physical Activity Level" : data.Physical_Activity_Level,
-            "BMI Category"            : data.BMI_Category,
-            "Heart Rate"              : data.Heart_Rate,
-            "Daily Steps"             : data.Daily_Steps,
-            "Sleep Disorder"          : data.Sleep_Disorder,
-            "BP_Systolic"             : data.BP_Systolic,
-            "BP_Diastolic"            : data.BP_Diastolic,
-        }])
-
-        X           = preprocessor.transform(df)
-        probs       = stress_model.predict(X)[0]
-        class_index = int(np.argmax(probs))
-        label       = STRESS_LABEL_MAP[class_index]
-
-        # ── Hitung stress score skala 0–100 ──────────────────
-        # Setiap kelas dipetakan ke titik tengah rentangnya:
-        #   Rendah  →  0–33   → titik tengah 16.5
-        #   Sedang  → 34–66   → titik tengah 50.0
-        #   Tinggi  → 67–100  → titik tengah 83.5
-        # Skor akhir = weighted average probabilitas × titik tengah
-        # Contoh: Rendah=0.18, Sedang=0.65, Tinggi=0.17
-        #   → (0.18×16.5) + (0.65×50.0) + (0.17×83.5) = 49 (Sedang ✓)
-        MIDPOINTS    = [16.5, 50.0, 83.5]
-        stress_score = round(float(np.dot(probs, MIDPOINTS)), 1)
-
-        # Probabilitas dikonversi ke persen (×100) agar FS tidak perlu konversi manual
-        p_rendah = round(float(probs[0]) * 100, 1)
-        p_sedang = round(float(probs[1]) * 100, 1)
-        p_tinggi = round(float(probs[2]) * 100, 1)
-
-        return StressOutput(
-            success=True,
-            timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            data={
-                "label"               : label,
-                "class_index"         : class_index,
-                "stress_score"        : stress_score,
-                "stress_score_percent": f"{stress_score}%",
-                "probabilities": {
-                    "Rendah": p_rendah,
-                    "Sedang": p_sedang,
-                    "Tinggi": p_tinggi,
-                },
-                "message": STRESS_MESSAGES[label]
-            }
-        )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Terjadi kesalahan: {str(e)}")
-
-
-# ══════════════════════════════════════════════════════════
-#  Helper: Jalankan inferensi emosi (dipakai oleh 2 endpoint)
-# ══════════════════════════════════════════════════════════
-def _run_emotion_inference(image_bytes: bytes, source: str) -> EmotionOutput:
+def _run_emotion_inference(image_bytes: bytes, source: str) -> "EmotionOutput":
     if emotion_model is None:
         raise HTTPException(status_code=503, detail="Emotion model belum siap, coba beberapa saat lagi.")
 
@@ -386,189 +233,8 @@ def _run_emotion_inference(image_bytes: bytes, source: str) -> EmotionOutput:
 
 
 # ══════════════════════════════════════════════════════════
-#  Endpoint: Emotion dari Upload Gambar
+#  Schemas: Stress Prediction (Standard /predict)
 # ══════════════════════════════════════════════════════════
-@app.post(
-    "/predict/emotion/upload",
-    tags=["Emotion Classification"],
-    summary="Klasifikasi emosi wajah dari file gambar",
-    response_model=EmotionOutput
-)
-async def predict_emotion_upload(file: UploadFile = File(...)):
-    """
-    Upload file gambar (JPEG/JPG/PNG, maks 5 MB).
-    Mengembalikan prediksi emosi: Angry, Disgust, Fear, Happy, Sad, Surprise.
-
-    **Catatan:** Performa terbaik jika wajah menghadap ke depan (frontal).
-    """
-    # Validasi content-type
-    if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(
-            status_code=415,
-            detail=f"Format tidak didukung: {file.content_type}. Gunakan JPEG, JPG, atau PNG."
-        )
-
-    image_bytes = await file.read()
-
-    # Validasi ukuran file
-    if len(image_bytes) > MAX_FILE_SIZE_MB * 1024 * 1024:
-        raise HTTPException(
-            status_code=413,
-            detail=f"Ukuran file melebihi batas {MAX_FILE_SIZE_MB} MB."
-        )
-
-    return _run_emotion_inference(image_bytes, source="upload")
-
-
-# ══════════════════════════════════════════════════════════
-#  Endpoint: Emotion dari Frame Kamera
-# ══════════════════════════════════════════════════════════
-@app.post(
-    "/predict/emotion/camera",
-    tags=["Emotion Classification"],
-    summary="Klasifikasi emosi wajah dari frame kamera",
-    response_model=EmotionOutput
-)
-async def predict_emotion_camera(file: UploadFile = File(...)):
-    """
-    Kirim satu frame dari kamera sebagai file gambar (JPEG/PNG).
-
-    **Cara pakai dari frontend:**
-    1. Ambil frame dari `<video>` menggunakan `canvas.toBlob()`.
-    2. POST ke endpoint ini sebagai `multipart/form-data` dengan field `file`.
-    3. Respons langsung berisi prediksi emosi real-time.
-
-    **Catatan:** Endpoint ini identik dengan `/predict/emotion/upload`,
-    dibedakan hanya pada field `source` di respons (`"camera"`) agar
-    frontend bisa membedakan asal data.
-    """
-    if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(
-            status_code=415,
-            detail=f"Format tidak didukung: {file.content_type}. Gunakan JPEG atau PNG."
-        )
-
-    image_bytes = await file.read()
-
-    if len(image_bytes) > MAX_FILE_SIZE_MB * 1024 * 1024:
-        raise HTTPException(
-            status_code=413,
-            detail=f"Ukuran frame melebihi batas {MAX_FILE_SIZE_MB} MB."
-        )
-
-    return _run_emotion_inference(image_bytes, source="camera")
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
-from typing import Optional
-import joblib
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-from tensorflow.keras.models import load_model
-from tensorflow.keras import layers
-import os
-
-# ──────────────────────────────────────────
-#  Custom Layer (harus didefinisikan sebelum load model)
-# ──────────────────────────────────────────
-@tf.keras.utils.register_keras_serializable()
-class CustomDense(layers.Layer):
-    def __init__(self, units, **kwargs):
-        super(CustomDense, self).__init__(**kwargs)
-        self.units = units
-
-    def build(self, input_shape):
-        self.w = self.add_weight(
-            shape=(input_shape[-1], self.units),
-            initializer="he_normal",
-            trainable=True
-        )
-        self.b = self.add_weight(
-            shape=(self.units,),
-            initializer="zeros",
-            trainable=True
-        )
-
-    def call(self, inputs):
-        return tf.matmul(inputs, self.w) + self.b
-
-    def get_config(self):
-        config = super().get_config()
-        config.update({"units": self.units})
-        return config
-
-
-# ──────────────────────────────────────────
-#  Inisialisasi aplikasi
-# ──────────────────────────────────────────
-app = FastAPI(
-    title="Stress Level Prediction API",
-    description="REST API untuk prediksi level stres menggunakan model Machine Learning",
-    version="1.0.0"
-)
-
-# Izinkan semua origin (ganti saat production)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# ──────────────────────────────────────────
-#  Patch Dense layer agar kompatibel dengan model
-#  yang disimpan oleh versi Keras berbeda
-# ──────────────────────────────────────────
-_OriginalDenseInit = layers.Dense.__init__
-
-def _patched_dense_init(self, *args, **kwargs):
-    kwargs.pop('quantization_config', None)
-    _OriginalDenseInit(self, *args, **kwargs)
-
-layers.Dense.__init__ = _patched_dense_init
-
-# ──────────────────────────────────────────
-#  Load model & preprocessor saat server start
-# ──────────────────────────────────────────
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-try:
-    preprocessor = joblib.load(os.path.join(BASE_DIR, "models", "prepocessor.save"))
-    model = load_model(
-        os.path.join(BASE_DIR, "models", "stress_level_prediction_model.keras"),
-        custom_objects={"CustomDense": CustomDense},
-        compile=False
-    )
-    model.compile(
-        optimizer='adam',
-        loss='sparse_categorical_crossentropy',
-        metrics=['accuracy']
-    )
-    print("✅ Model dan preprocessor berhasil dimuat")
-except Exception as e:
-    import traceback
-    traceback.print_exc()
-    print(f"❌ Gagal memuat model: {e}")
-    preprocessor = None
-    model = None
-
-LABEL_MAP = {0: "Rendah", 1: "Sedang", 2: "Tinggi"}
-
-VALID_GENDERS     = ["Male", "Female"]
-VALID_OCCUPATIONS = [
-    "Accountant", "Doctor", "Engineer", "Lawyer", "Manager",
-    "Nurse", "Sales Representative", "Salesperson", "Scientist",
-    "Software Engineer", "Teacher"
-]
-VALID_BMI         = ["Normal", "Obese", "Overweight"]
-VALID_DISORDERS   = ["Insomnia", "Sleep Apnea", None]
-
-
-# ──────────────────────────────────────────
-#  Schema input (validasi otomatis)
-# ──────────────────────────────────────────
 class StressInput(BaseModel):
     Gender: str                   = Field(..., example="Female")
     Age: int                      = Field(..., ge=18, le=100, example=28)
@@ -611,9 +277,6 @@ class StressInput(BaseModel):
         return v
 
 
-# ──────────────────────────────────────────
-#  Schema output
-# ──────────────────────────────────────────
 class ProbabilityDetail(BaseModel):
     Rendah: float
     Sedang: float
@@ -626,14 +289,51 @@ class StressOutput(BaseModel):
     message: str
 
 
-# ──────────────────────────────────────────
-#  Endpoints
-# ──────────────────────────────────────────
+# ══════════════════════════════════════════════════════════
+#  Schemas: Stress Prediction V2 (/predict/stress)
+# ══════════════════════════════════════════════════════════
+class ProbabilityStress(BaseModel):
+    Rendah: float
+    Sedang: float
+    Tinggi: float
+
+class StressOutputV2(BaseModel):
+    success: bool
+    timestamp: str
+    data: dict
+
+
+# ══════════════════════════════════════════════════════════
+#  Schemas: Emotion Detection
+# ══════════════════════════════════════════════════════════
+class EmotionProbability(BaseModel):
+    Angry: float
+    Disgust: float
+    Fear: float
+    Happy: float
+    Sad: float
+    Surprise: float
+
+class EmotionData(BaseModel):
+    predicted_class: str
+    confidence: float
+    predictions_probability: EmotionProbability
+
+class EmotionOutput(BaseModel):
+    success: bool
+    timestamp: str
+    source: str   # "upload" | "camera"
+    data: EmotionData
+
+
+# ══════════════════════════════════════════════════════════
+#  Endpoints: Health & Docs
+# ══════════════════════════════════════════════════════════
 @app.get("/", tags=["Health"])
 def root():
     return {
         "status": "ok",
-        "message": "Stress Level Prediction API",
+        "message": "Stress & Emotion Detection API v2.0",
         "docs": "/docs"
     }
 
@@ -641,13 +341,28 @@ def root():
 def health_check():
     return {
         "status": "ok",
-        "model_loaded": model is not None,
-        "preprocessor_loaded": preprocessor is not None
+        "stress_model_loaded": stress_model is not None,
+        "preprocessor_loaded": preprocessor is not None,
+        "emotion_model_loaded": emotion_model is not None,
     }
 
-@app.post("/predict", response_model=StressOutput, tags=["Prediction"])
+
+# ══════════════════════════════════════════════════════════
+#  Endpoint: Stress Prediction (Standard /predict)
+# ══════════════════════════════════════════════════════════
+@app.post(
+    "/predict",
+    response_model=StressOutput,
+    tags=["Prediction"],
+    summary="Prediksi tingkat stres dari data kesehatan (Standard)"
+)
 def predict(data: StressInput):
-    if model is None or preprocessor is None:
+    """
+    Menerima data kesehatan (tidur, aktivitas, BMI, dll.) dan
+    mengembalikan prediksi tingkat stres: **Rendah / Sedang / Tinggi**.
+    Probabilitas bertipe float dalam skala 0–1.
+    """
+    if stress_model is None or preprocessor is None:
         raise HTTPException(status_code=503, detail="Model belum siap, coba beberapa saat lagi")
 
     try:
@@ -671,16 +386,9 @@ def predict(data: StressInput):
         X = preprocessor.transform(df)
 
         # 3. Prediksi
-        probs       = model.predict(X)[0]
+        probs       = stress_model.predict(X)[0]
         class_index = int(np.argmax(probs))
-        label       = LABEL_MAP[class_index]
-
-        # 4. Pesan rekomendasi
-        messages = {
-            "Rendah" : "Tingkat stres Anda rendah. Pertahankan gaya hidup sehat Anda!",
-            "Sedang" : "Tingkat stres Anda sedang. Perhatikan pola tidur dan olahraga rutin.",
-            "Tinggi" : "Tingkat stres Anda tinggi. Disarankan untuk berkonsultasi dengan profesional."
-        }
+        label       = STRESS_LABEL_MAP[class_index]
 
         return StressOutput(
             label       = label,
@@ -690,8 +398,137 @@ def predict(data: StressInput):
                 Sedang=round(float(probs[1]), 4),
                 Tinggi=round(float(probs[2]), 4),
             ),
-            message=messages[label]
+            message=STRESS_MESSAGES[label]
         )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Terjadi kesalahan: {str(e)}")
+
+
+# ══════════════════════════════════════════════════════════
+#  Endpoint: Stress Prediction V2 (/predict/stress)
+# ══════════════════════════════════════════════════════════
+@app.post(
+    "/predict/stress",
+    tags=["Stress Prediction"],
+    summary="Prediksi tingkat stres dari data kesehatan (V2)",
+    response_model=StressOutputV2
+)
+def predict_stress(data: StressInput):
+    """
+    Menerima data kesehatan (tidur, aktivitas, BMI, dll.) dan
+    mengembalikan prediksi tingkat stres: **Rendah / Sedang / Tinggi** (format respons V2).
+    Probabilitas bertipe float dalam skala persen 0–100.
+    """
+    if stress_model is None or preprocessor is None:
+        raise HTTPException(status_code=503, detail="Stress model belum siap, coba beberapa saat lagi.")
+
+    try:
+        df = pd.DataFrame([{
+            "Gender"                  : data.Gender,
+            "Age"                     : data.Age,
+            "Occupation"              : data.Occupation,
+            "Sleep Duration"          : data.Sleep_Duration,
+            "Quality of Sleep"        : data.Quality_of_Sleep,
+            "Physical Activity Level" : data.Physical_Activity_Level,
+            "BMI Category"            : data.BMI_Category,
+            "Heart Rate"              : data.Heart_Rate,
+            "Daily Steps"             : data.Daily_Steps,
+            "Sleep Disorder"          : data.Sleep_Disorder,
+            "BP_Systolic"             : data.BP_Systolic,
+            "BP_Diastolic"            : data.BP_Diastolic,
+        }])
+
+        X           = preprocessor.transform(df)
+        probs       = stress_model.predict(X)[0]
+        class_index = int(np.argmax(probs))
+        label       = STRESS_LABEL_MAP[class_index]
+
+        # ── Hitung stress score skala 0–100 ──────────────────
+        MIDPOINTS    = [16.5, 50.0, 83.5]
+        stress_score = round(float(np.dot(probs, MIDPOINTS)), 1)
+
+        p_rendah = round(float(probs[0]) * 100, 1)
+        p_sedang = round(float(probs[1]) * 100, 1)
+        p_tinggi = round(float(probs[2]) * 100, 1)
+
+        return StressOutputV2(
+            success=True,
+            timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            data={
+                "label"               : label,
+                "class_index"         : class_index,
+                "stress_score"        : stress_score,
+                "stress_score_percent": f"{stress_score}%",
+                "probabilities": {
+                    "Rendah": p_rendah,
+                    "Sedang": p_sedang,
+                    "Tinggi": p_tinggi,
+                },
+                "message": STRESS_MESSAGES[label]
+            }
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Terjadi kesalahan: {str(e)}")
+
+
+# ══════════════════════════════════════════════════════════
+#  Endpoint: Emotion dari Upload Gambar
+# ══════════════════════════════════════════════════════════
+@app.post(
+    "/predict/emotion/upload",
+    tags=["Emotion Classification"],
+    summary="Klasifikasi emosi wajah dari file gambar",
+    response_model=EmotionOutput
+)
+async def predict_emotion_upload(file: UploadFile = File(...)):
+    """
+    Upload file gambar (JPEG/JPG/PNG, maks 5 MB).
+    Mengembalikan prediksi emosi: Angry, Disgust, Fear, Happy, Sad, Surprise.
+    """
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(
+            status_code=415,
+            detail=f"Format tidak didukung: {file.content_type}. Gunakan JPEG, JPG, atau PNG."
+        )
+
+    image_bytes = await file.read()
+
+    if len(image_bytes) > MAX_FILE_SIZE_MB * 1024 * 1024:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Ukuran file melebihi batas {MAX_FILE_SIZE_MB} MB."
+        )
+
+    return _run_emotion_inference(image_bytes, source="upload")
+
+
+# ══════════════════════════════════════════════════════════
+#  Endpoint: Emotion dari Frame Kamera
+# ══════════════════════════════════════════════════════════
+@app.post(
+    "/predict/emotion/camera",
+    tags=["Emotion Classification"],
+    summary="Klasifikasi emosi wajah dari frame kamera",
+    response_model=EmotionOutput
+)
+async def predict_emotion_camera(file: UploadFile = File(...)):
+    """
+    Kirim satu frame dari kamera sebagai file gambar (JPEG/PNG).
+    """
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(
+            status_code=415,
+            detail=f"Format tidak didukung: {file.content_type}. Gunakan JPEG atau PNG."
+        )
+
+    image_bytes = await file.read()
+
+    if len(image_bytes) > MAX_FILE_SIZE_MB * 1024 * 1024:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Ukuran frame melebihi batas {MAX_FILE_SIZE_MB} MB."
+        )
+
+    return _run_emotion_inference(image_bytes, source="camera")

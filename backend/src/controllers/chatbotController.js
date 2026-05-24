@@ -26,22 +26,26 @@ export const submitAnswer = async (req, res) => {
       BP_Diastolic: Number(answers.bp_diastolic),
     };
 
-    const aiResponse = await axios.post("http://127.0.0.1:8000/predict", aiPayload);
+    console.log("aiPayload being sent:", JSON.stringify(aiPayload, null, 2));
+
+    // const aiResponse = await axios.post("http://127.0.0.1:8000/predict", aiPayload);
+    const aiResponse = await axios.post("http://localhost:8000/predict/stress", aiPayload);
 
     const aiResult = aiResponse.data;
 
     // Ambil probabilitas sesuai class_index dan konversi ke persen
-    const probMap = { 0: "Rendah", 1: "Sedang", 2: "Tinggi" };
-    const probKey = probMap[aiResult.class_index];
-    const score = Math.round(aiResult.probabilities[probKey] * 100);
+    // const probMap = { 0: "Rendah", 1: "Sedang", 2: "Tinggi" };
+    // const probKey = probMap[aiResult.class_index];
+    // const score = Math.round(aiResult.probabilities[probKey] * 100);
+    const score = Math.round(aiResult.data.stress_score);
 
     const history = await prisma.chatHistory.create({
       data: {
         userId: req.user.userId,
         answers,
         score,
-        category: aiResult.label,
-        advice: aiResult.message,
+        category: aiResult.data.label,
+        advice: aiResult.data.message,
       },
     });
 
