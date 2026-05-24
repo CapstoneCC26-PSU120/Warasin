@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth.js";
 import chatbotRoutes from "./routes/chatbot.js";
 import faceRoutes from "./routes/faceRoutes.js";
 import cors from "cors";
+import { logMiddleware } from "./middlewares/logMiddleware.js";
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use(logMiddleware);
 app.use(passport.initialize());
 
 app.get("/", (req, res) => {

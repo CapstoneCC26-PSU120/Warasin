@@ -2,17 +2,18 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  ArrowRight,
   Brain,
   Camera,
   CheckCircle2,
-  Clock,
   Heart,
-  LineChart,
   MessageCircle,
   Quote,
-  ShieldCheck,
-  Smile,
+  Shield,
   Sparkles,
+  Star,
+  Timer,
+  TrendingUp,
   Zap,
 } from "lucide-react";
 import heroImage from "@/assets/hero-calm.png";
@@ -20,72 +21,115 @@ import { SiteHeader } from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/")({ component: Index });
 
-function FeatureCard({
+/* ─── Emoji floating pill ─── */
+function FloatingEmoji({ emoji, className }: { emoji: string; className?: string }) {
+  return (
+    <span
+      className={`absolute text-2xl md:text-3xl select-none pointer-events-none animate-float ${className ?? ""}`}
+      style={{ animationDelay: `${Math.random() * 3}s` }}
+    >
+      {emoji}
+    </span>
+  );
+}
+
+/* ─── Bento-style feature tile ─── */
+function BentoCard({
   icon,
   title,
   description,
-  accent,
+  color,
+  className,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
-  accent?: boolean;
+  color: string;
+  className?: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-card transition-smooth hover:-translate-y-1 hover:shadow-glow">
+    <div
+      className={`group relative overflow-hidden rounded-3xl border border-border/60 bg-card p-7 shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow ${className ?? ""}`}
+    >
+      {/* Decorative corner glow */}
       <div
-        className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl ${
-          accent
-            ? "bg-accent-gradient text-accent-foreground"
-            : "bg-primary text-primary-foreground"
-        } shadow-soft`}
+        className="absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-20 blur-2xl group-hover:opacity-40 transition-opacity duration-500"
+        style={{ background: color }}
+      />
+      <div
+        className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm"
+        style={{ background: color + "20", color }}
       >
         {icon}
       </div>
-      <h3 className="text-xl font-semibold">{title}</h3>
-      <p className="mt-2 text-muted-foreground">{description}</p>
+      <h3 className="text-lg font-bold text-foreground">{title}</h3>
+      <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{description}</p>
     </div>
   );
 }
 
-function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
-  return (
-    <div className="rounded-2xl bg-card p-6 text-center shadow-card">
-      <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
-        {icon}
-      </div>
-      <div className="text-3xl font-bold text-foreground">{value}</div>
-      <div className="mt-1 text-sm text-muted-foreground">{label}</div>
-    </div>
-  );
-}
-
-function Step({
+/* ─── Numbered step with connecting line ─── */
+function PlayfulStep({
   number,
+  emoji,
   title,
   description,
+  isLast,
 }: {
-  number: string;
+  number: number;
+  emoji: string;
   title: string;
   description: string;
+  isLast?: boolean;
 }) {
   return (
-    <div className="relative rounded-3xl border border-border bg-card p-8 shadow-card transition-smooth hover:-translate-y-1 hover:shadow-glow">
-      <div className="mb-4 text-5xl font-bold text-primary/20">{number}</div>
-      <h3 className="text-xl font-semibold">{title}</h3>
-      <p className="mt-2 text-muted-foreground">{description}</p>
+    <div className="flex gap-5 relative">
+      {/* Connector line */}
+      {!isLast && (
+        <div className="absolute left-6 top-14 bottom-0 w-0.5 bg-gradient-to-b from-primary/30 to-transparent" />
+      )}
+      {/* Number bubble */}
+      <div className="relative shrink-0 w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-xl font-bold text-primary shadow-sm">
+        {emoji}
+      </div>
+      <div className="pb-10">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-primary/50 uppercase tracking-widest">
+            Step {number}
+          </span>
+        </div>
+        <h3 className="mt-1 text-lg font-bold text-foreground">{title}</h3>
+        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed max-w-sm">
+          {description}
+        </p>
+      </div>
     </div>
   );
 }
 
-function Testimonial({ quote, name, role }: { quote: string; name: string; role: string }) {
+/* ─── Testimonial card with playful avatar ─── */
+function TestimonialCard({
+  quote,
+  name,
+  role,
+  emoji,
+}: {
+  quote: string;
+  name: string;
+  role: string;
+  emoji: string;
+}) {
   return (
-    <div className="relative rounded-3xl border border-border bg-card p-8 shadow-card">
-      <Quote className="mb-4 h-6 w-6 text-accent-bright" />
-      <p className="text-foreground">"{quote}"</p>
-      <div className="mt-6 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-soft text-sm font-semibold text-primary">
-          {name.charAt(0)}
+    <div className="group relative glass rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-card">
+      <div className="flex gap-1 mb-4">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+        ))}
+      </div>
+      <p className="text-foreground text-sm leading-relaxed italic">"{quote}"</p>
+      <div className="mt-5 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-lg">
+          {emoji}
         </div>
         <div>
           <div className="text-sm font-semibold text-foreground">{name}</div>
@@ -96,239 +140,338 @@ function Testimonial({ quote, name, role }: { quote: string; name: string; role:
   );
 }
 
+/* ─── Big stat counter ─── */
+function BigStat({ value, label, icon }: { value: string; label: string; icon: React.ReactNode }) {
+  return (
+    <div className="text-center group">
+      <div className="mx-auto mb-3 w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300 shadow-sm">
+        {icon}
+      </div>
+      <div className="text-4xl font-extrabold text-foreground">{value}</div>
+      <div className="mt-1 text-sm text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
 function Index() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <main className="flex-1">
-        {/* Hero */}
-        <section className="bg-hero relative overflow-hidden">
-          <div className="container mx-auto grid gap-12 px-4 py-20 md:grid-cols-2 md:py-28 md:items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-soft">
-                <Sparkles className="h-3.5 w-3.5 text-accent-bright" />
-                AI-powered wellbeing check
-              </div>
-              <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-                Check your <span className="text-primary">stress level</span> in a{" "}
-                <span className="text-accent-bright">moment</span>.
-              </h1>
-              <p className="max-w-lg text-lg text-muted-foreground font-inter">
-                Take a deep breath. Snap a face photo or chat with our friendly bot, and get a calm,
-                clear read on how you're really feeling — anytime.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild variant="hero" size="xl">
-                  <Link to="/measurement">Start free check</Link>
-                </Button>
-                <Button asChild variant="soft" size="xl">
-                  <Link to="/history">View history</Link>
-                </Button>
-              </div>
-              <div className="flex items-center gap-6 pt-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-primary" />
-                  Private & secure
+        {/* ═══════════ HERO ═══════════ */}
+        <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+          {/* Blobs */}
+          <div className="blob blob-blue animate-blob w-[500px] h-[500px] -top-56 -left-40" />
+          <div className="blob blob-yellow animate-blob-delay-2 w-[400px] h-[400px] top-20 -right-40" />
+          <div className="blob blob-pink animate-blob-delay-4 w-[300px] h-[300px] bottom-0 left-1/3" />
+
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+              {/* Left: Copy */}
+              <div className="space-y-7 animate-fade-up">
+                {/* Badge */}
+                <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 text-sm font-medium text-muted-foreground shadow-sm">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    <Sparkles className="h-3 w-3" />
+                  </span>
+                  AI-powered stress check
                 </div>
-                <div className="flex items-center gap-2">
-                  <Heart className="h-4 w-4 text-accent-bright" />
-                  No sign-up needed
+
+                <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.08] tracking-tight text-foreground">
+                  Your mind
+                  <br />
+                  <span className="text-primary">deserves</span>{" "}
+                  <span className="relative inline-block">
+                    <span className="text-accent-bright">a break</span>
+                    <svg
+                      className="absolute -bottom-2 left-0 w-full"
+                      viewBox="0 0 200 12"
+                      fill="none"
+                    >
+                      <path
+                        d="M2 8c30-6 60-4 90-2s70 4 106-2"
+                        stroke="rgb(251, 191, 36)"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        className="animate-draw"
+                      />
+                    </svg>
+                  </span>
+                </h1>
+
+                <p className="max-w-md text-lg text-muted-foreground leading-relaxed">
+                  Take 60 seconds. Snap a selfie or chat with Wara — our friendly AI companion — and
+                  discover how you're <em>really</em> feeling today.
+                </p>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap gap-3 pt-1">
+                  <Button asChild variant="hero" size="xl">
+                    <Link to="/measurement">
+                      Start checking in
+                      <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="soft" size="xl">
+                    <Link to="/history">My history</Link>
+                  </Button>
+                </div>
+
+                {/* Trust badges */}
+                <div className="flex items-center gap-5 text-sm text-muted-foreground pt-1">
+                  <span className="flex items-center gap-1.5">
+                    <Shield className="h-4 w-4 text-primary" /> Private & secure
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Heart className="h-4 w-4 text-pink-400" /> Free forever
+                  </span>
                 </div>
               </div>
-            </div>
-            <div className="relative">
-              <div className="absolute -inset-6 rounded-[2.5rem] bg-accent/30 blur-3xl" />
-              <div className="relative animate-float overflow-hidden rounded-[2rem] bg-card shadow-glow">
-                <img
-                  src={heroImage}
-                  alt="A person meditating peacefully under soft blue clouds and a warm yellow sun"
-                  width={1280}
-                  height={960}
-                  className="h-full w-full object-cover"
-                />
+
+              {/* Right: Hero image with playful frame */}
+              <div className="relative animate-fade-up-delay-1">
+                {/* Glow ring */}
+                <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-primary/20 via-transparent to-amber-300/20 blur-2xl" />
+
+                {/* Main image card */}
+                <div className="relative animate-float rounded-[2rem] overflow-hidden shadow-glow ring-1 ring-white/40">
+                  <img
+                    src={heroImage}
+                    alt="A person meditating peacefully under soft blue clouds and a warm yellow sun"
+                    width={1280}
+                    height={960}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Features */}
-        <section className="container mx-auto px-4 py-20">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-              Two ways to check in with <span className="text-accent-bright">yourself</span>
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              Pick whichever feels right today. Both take less than a minute.
-            </p>
-          </div>
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <FeatureCard
-              icon={<Camera className="h-6 w-6" />}
-              title="Face Photo Analysis"
-              description="Upload a selfie and our model reads micro-expressions to estimate your current stress level."
-              accent
-            />
-            <FeatureCard
-              icon={<MessageCircle className="h-6 w-6" />}
-              title="Chat with our Bot"
-              description="Have a short, friendly conversation. The bot reflects on your answers and shares a thoughtful score."
-            />
-          </div>
-        </section>
+        {/* ═══════════ BENTO FEATURES ═══════════ */}
+        <section className="container mx-auto px-4 py-24 relative overflow-hidden">
+          <div className="blob blob-green animate-blob-delay-2 w-72 h-72 -top-24 -right-24" />
 
-        {/* Why CalmCheck — marketing */}
-        <section className="bg-sky-soft py-20">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-2xl text-center">
-              <span className="inline-block rounded-full bg-accent px-4 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
-                Why Warasin?
-              </span>
-              <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
-                Your daily companion for a <span className="text-accent-bright">balanced mind</span>
+          <div className="relative z-10">
+            <div className="mx-auto max-w-2xl text-center mb-14">
+              <span className="inline-block mb-4 text-3xl">🎯</span>
+              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground">
+                Two ways to <span className="text-primary">check in</span>
               </h2>
-              <p className="mt-4 text-muted-foreground">
-                Stress builds up quietly. Warasin gives you a gentle, science-inspired way to notice
-                it early — so you can act before it takes over.
+              <p className="mt-4 text-muted-foreground text-lg max-w-md mx-auto">
+                Pick whichever vibe suits you. Both take less than a minute.
               </p>
             </div>
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
-              <FeatureCard
+
+            {/* Bento grid */}
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <BentoCard
+                icon={<Camera className="h-6 w-6" />}
+                title="📸 Face Scan"
+                description="Upload a selfie — our AI reads micro-expressions to gently estimate your current stress level."
+                color="#60a5fa"
+                className="lg:col-span-1"
+              />
+              <BentoCard
+                icon={<MessageCircle className="h-6 w-6" />}
+                title="💬 Chat with Wara"
+                description="Have a short, warm conversation. Wara listens, reflects, and shares a thoughtful score."
+                color="#f472b6"
+                className="lg:col-span-1"
+              />
+              <BentoCard
                 icon={<Brain className="h-6 w-6" />}
-                title="Smart insights"
-                description="Personalised tips based on your stress pattern — from breathing to grounding rituals."
+                title="🧠 Smart Insights"
+                description="Personalised tips based on your patterns — from breathing exercises to grounding rituals."
+                color="#a78bfa"
+                className="lg:col-span-1"
               />
-              <FeatureCard
-                icon={<Clock className="h-6 w-6" />}
-                title="Just 60 seconds"
+              <BentoCard
+                icon={<Timer className="h-5 w-5" />}
+                title="⚡ Just 60 Seconds"
                 description="No long forms. Open the app, check in, and get back to your day feeling lighter."
-                accent
+                color="#fbbf24"
+                className="lg:col-span-1"
               />
-              <FeatureCard
-                icon={<Smile className="h-6 w-6" />}
-                title="Built for everyone"
-                description="Student, parent, or professional — Warasin adapts to where you are right now."
+              <BentoCard
+                icon={<TrendingUp className="h-5 w-5" />}
+                title="📊 Track Your Vibe"
+                description="Watch your stress trends over days and weeks. Celebrate the calmer moments!"
+                color="#34d399"
+                className="lg:col-span-2"
               />
             </div>
           </div>
         </section>
 
-        {/* How it works */}
-        <section className="container mx-auto px-4 py-20">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-              How it <span className="text-primary">works</span>
-            </h2>
-            <p className="mt-4 text-muted-foreground">Three simple steps. Zero pressure.</p>
-          </div>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            <Step
-              number="01"
-              title="Choose your check-in"
-              description="Snap a quick selfie or chat with our friendly bot — whichever feels easiest today."
-            />
-            <Step
-              number="02"
-              title="Get your score"
-              description="Our AI gently analyses your input and shares a clear, calm read on your stress level."
-            />
-            <Step
-              number="03"
-              title="See your trend"
-              description="Track how you're doing over days and weeks, and celebrate the calmer moments."
-            />
+        {/* ═══════════ HOW IT WORKS ═══════════ */}
+        <section className="relative overflow-hidden py-24">
+          <div className="blob blob-pink animate-blob w-80 h-80 -bottom-32 -left-32" />
+          <div className="blob blob-yellow animate-blob-delay-4 w-56 h-56 top-16 -right-20" />
+
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="grid md:grid-cols-2 gap-16 items-center">
+              {/* Left: Steps */}
+              <div>
+                <span className="inline-block mb-4 text-3xl">🪜</span>
+                <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground mb-3">
+                  How it <span className="text-primary">works</span>
+                </h2>
+                <p className="text-muted-foreground mb-10 max-w-sm">
+                  Three easy steps. Zero pressure. All the good vibes.
+                </p>
+                <div>
+                  <PlayfulStep
+                    number={1}
+                    emoji="📱"
+                    title="Pick your check-in"
+                    description="Snap a selfie or open a chat with Wara — whichever feels right today."
+                  />
+                  <PlayfulStep
+                    number={2}
+                    emoji="🤖"
+                    title="Get your score"
+                    description="Our AI gently analyses your input and shares a clear, calm read on your stress."
+                  />
+                  <PlayfulStep
+                    number={3}
+                    emoji="📈"
+                    title="Watch your growth"
+                    description="Track how you're doing over time and celebrate every calm moment."
+                    isLast
+                  />
+                </div>
+              </div>
+
+              {/* Right: Fun stats grid */}
+              <div className="grid grid-cols-2 gap-5">
+                <div className="glass rounded-3xl p-7 text-center shadow-card col-span-2">
+                  <span className="text-5xl mb-3 block">🎯</span>
+                  <div className="text-4xl font-extrabold text-foreground">98%</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Users feel more self-aware after just one check-in
+                  </div>
+                </div>
+                <div className="glass rounded-3xl p-6 text-center shadow-card">
+                  <span className="text-3xl mb-2 block">⚡</span>
+                  <div className="text-2xl font-extrabold text-foreground">60s</div>
+                  <div className="text-xs text-muted-foreground mt-1">Average session</div>
+                </div>
+                <div className="glass rounded-3xl p-6 text-center shadow-card">
+                  <span className="text-3xl mb-2 block">🔒</span>
+                  <div className="text-2xl font-extrabold text-foreground">100%</div>
+                  <div className="text-xs text-muted-foreground mt-1">Private & secure</div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Testimonials */}
-        <section className="bg-sky-soft py-20">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-                Loved by people who care about their{" "}
-                <span className="text-accent-bright">wellbeing</span>
+        {/* ═══════════ TESTIMONIALS ═══════════ */}
+        <section className="relative overflow-hidden py-24 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent">
+          <div className="blob blob-blue animate-blob-delay-2 w-64 h-64 -bottom-24 -left-24" />
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="text-center mb-14">
+              <span className="inline-block mb-4 text-3xl">💬</span>
+              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground">
+                People <span className="text-accent-bright">love</span> it
               </h2>
+              <p className="mt-4 text-muted-foreground text-lg max-w-md mx-auto">
+                Real stories from real humans who started checking in.
+              </p>
             </div>
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
-              <Testimonial
+            <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+              <TestimonialCard
                 quote="I check in every morning with my coffee. It's become my favourite tiny ritual."
                 name="Aisha M."
                 role="Designer"
+                emoji="🎨"
               />
-              <Testimonial
+              <TestimonialCard
                 quote="The chat feels like talking to a thoughtful friend, not a cold algorithm."
                 name="Daniel K."
                 role="Teacher"
+                emoji="📚"
               />
-              <Testimonial
-                quote="Watching my stress trend go down week by week has genuinely changed my habits."
+              <TestimonialCard
+                quote="Watching my stress trend go down week by week genuinely changed my habits."
                 name="Priya R."
                 role="Student"
+                emoji="🎓"
               />
             </div>
           </div>
         </section>
 
-        {/* Stats */}
-        <section className="container mx-auto px-4 py-20">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-              Small habit, <span className="text-accent-bright">big difference</span>
-            </h2>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            <Stat icon={<LineChart />} value="98%" label="Users feel more aware after one check" />
-            <Stat icon={<Heart />} value="60s" label="Average time to complete a session" />
-            <Stat icon={<ShieldCheck />} value="100%" label="Private — your data stays yours" />
-          </div>
-        </section>
+        {/* ═══════════ BENEFITS CHECKLIST ═══════════ */}
+        <section className="container mx-auto px-4 py-24">
+          <div className="relative overflow-hidden grid gap-12 rounded-[2rem] border border-border/60 bg-card p-10 shadow-card md:grid-cols-2 md:items-center md:p-14">
+            {/* Background blob inside card */}
+            <div className="blob blob-green animate-blob-delay-2 w-64 h-64 -bottom-24 -right-24 opacity-30" />
 
-        {/* Benefits */}
-        <section className="container mx-auto px-4 pb-20">
-          <div className="grid gap-12 rounded-3xl border border-border bg-card p-10 shadow-card md:grid-cols-2 md:items-center md:p-14">
-            <div className="space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
+            <div className="space-y-5 relative z-10">
+              <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary uppercase tracking-wider">
                 <Zap className="h-3.5 w-3.5" /> Everything you need
               </span>
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-                A calmer you, one check-in at a time
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
+                A calmer you,
+                <br />
+                <span className="text-primary">one check-in</span> at a time
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground leading-relaxed">
                 Warasin blends gentle AI with mindful design — so checking in feels less like a
-                test, and more like a moment for yourself.
+                test, and more like a moment for <em>yourself</em>.
               </p>
             </div>
-            <ul className="space-y-4">
+
+            <ul className="space-y-4 relative z-10">
               {[
-                "Two friendly check-in modes — face or chat",
-                "Personalised, science-inspired suggestions",
-                "Beautiful trend history at your fingertips",
-                "Zero ads, zero tracking, fully private",
-                "Works on any device, anytime, anywhere",
+                { text: "Two friendly check-in modes — face or chat", emoji: "🤝" },
+                { text: "Personalised, science-inspired suggestions", emoji: "🔬" },
+                { text: "Beautiful trend history at your fingertips", emoji: "📊" },
+                { text: "Zero ads, zero tracking, fully private", emoji: "🛡️" },
+                { text: "Works on any device, anytime, anywhere", emoji: "🌍" },
               ].map((item) => (
-                <li key={item} className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                  <span className="text-foreground">{item}</span>
+                <li
+                  key={item.text}
+                  className="flex items-center gap-3 p-3 rounded-2xl bg-background/60 border border-border/40 transition-all duration-200 hover:bg-primary/5 hover:border-primary/20"
+                >
+                  <span className="text-lg">{item.emoji}</span>
+                  <span className="text-sm font-medium text-foreground">{item.text}</span>
+                  <CheckCircle2 className="ml-auto h-4 w-4 shrink-0 text-primary/60" />
                 </li>
               ))}
             </ul>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="container mx-auto px-4 py-20">
-          <div className="relative overflow-hidden rounded-3xl bg-primary p-10 text-primary-foreground shadow-glow md:p-16">
-            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accent/40 blur-3xl" />
-            <div className="relative space-y-4 text-center">
-              <h2 className="text-3xl font-bold md:text-4xl">
-                Ready for a <span className="text-accent">brighter</span> moment?
+        {/* ═══════════ CTA ═══════════ */}
+        <section className="container mx-auto px-4 pb-24">
+          <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary via-primary to-primary/80 p-12 md:p-20 text-primary-foreground shadow-glow text-center">
+            {/* Decorative blobs */}
+            <div className="blob blob-yellow animate-blob w-56 h-56 -top-24 -left-24 opacity-40" />
+            <div className="blob blob-pink animate-blob-delay-2 w-48 h-48 -bottom-20 -right-20 opacity-30" />
+
+            {/* Floating emojis */}
+            <FloatingEmoji emoji="🌟" className="top-8 left-[10%]" />
+            <FloatingEmoji emoji="💙" className="bottom-8 right-[10%]" />
+            <FloatingEmoji emoji="✨" className="top-12 right-[20%] hidden md:block" />
+
+            <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
+              <span className="text-5xl block">🧠</span>
+              <h2 className="text-3xl md:text-5xl font-extrabold leading-tight">
+                Ready for a <span className="text-amber-300">brighter</span> day?
               </h2>
-              <p className="mx-auto max-w-xl text-primary-foreground/80">
+              <p className="text-primary-foreground/80 text-lg max-w-lg mx-auto">
                 Your wellbeing matters. Start your first stress check now — it's free, fast, and
-                gentle.
+                designed with 💛 for you.
               </p>
               <div className="flex justify-center pt-2">
                 <Button asChild variant="accent" size="xl">
-                  <Link to="/measurement">Begin now</Link>
+                  <Link to="/measurement">
+                    Let's go!
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
             </div>
