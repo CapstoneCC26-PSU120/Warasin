@@ -1,3 +1,6 @@
+import axios from "axios";
+import FormData from "form-data";
+
 export const analyzeFace = async (req, res) => {
   try {
     if (!req.file) {
@@ -6,35 +9,32 @@ export const analyzeFace = async (req, res) => {
       });
     }
 
-    // DUMMY RESPONSE
-    const result = {
-      success: true,
-      timestamp: new Date().toISOString(),
-      data: {
-        predicted_class: "Happy",
-        confidence: 0.9452,
-        predictions_probability: {
-          Angry: 0.0012,
-          Disgust: 0.0004,
-          Fear: 0.0031,
-          Happy: 0.9452,
-          Sad: 0.0102,
-          Surprise: 0.0315,
-          Neutral: 0.0084,
-        },
-      },
-    };
+    const formData = new FormData();
+
+    formData.append(
+      "file",
+      req.file.buffer,
+      req.file.originalname
+    );
+
+    const aiResponse = await axios.post(
+      "http://127.0.0.1:8000/predict/emotion/upload",
+      formData,
+      {
+        headers: formData.getHeaders(),
+      }
+    );
 
     res.status(200).json({
       message: "Face analysis completed successfully",
-      data: result,
+      data: aiResponse.data,
     });
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
       message: "Failed to analyze face",
-      error: error.message,
+      error: error.response?.data || error.message,
     });
   }
 };
