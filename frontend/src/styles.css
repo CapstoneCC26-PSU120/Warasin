@@ -211,16 +211,208 @@
   .transition-smooth {
     transition: var(--transition-smooth);
   }
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════
+   Decorative & Animation Styles
+   (outside @layer so they always apply)
+   ═══════════════════════════════════════════════ */
+
+/* ── Floating animation ── */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
   }
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-12px);
-    }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* ── Blob decorative elements ── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  will-change: transform;
+  z-index: 0;
+}
+.blob-blue {
+  background: rgba(96, 165, 250, 0.25);
+}
+.blob-yellow {
+  background: rgba(251, 191, 36, 0.22);
+}
+.blob-pink {
+  background: rgba(244, 114, 182, 0.2);
+}
+.blob-green {
+  background: rgba(74, 222, 128, 0.18);
+}
+
+/* Animate blobs gently */
+.animate-blob {
+  animation: blobFloat 8s ease-in-out infinite;
+}
+.animate-blob-delay-2 {
+  animation: blobFloat 10s ease-in-out 2s infinite;
+}
+.animate-blob-delay-4 {
+  animation: blobFloat 12s ease-in-out 4s infinite;
+}
+@keyframes blobFloat {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(20px, -30px) scale(1.05);
+  }
+  66% {
+    transform: translate(-15px, 15px) scale(0.95);
+  }
+}
+
+/* ── Chat typing indicator ── */
+.typing-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(96, 140, 210, 0.8);
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes typingBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
+
+/* ── Message slide-in ── */
+.message-slide-in-left {
+  animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.message-slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* ── Fade & slide up ── */
+.animate-fade-up {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-fade-up-delay-1 {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+.animate-fade-up-delay-2 {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+.animate-fade-up-delay-3 {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Pulse glow effect ── */
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(96, 140, 210, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px 8px rgba(96, 140, 210, 0.15);
+  }
+}
+
+/* ── Glass morphism ── */
+.glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* ── Online indicator pulse ── */
+.online-dot {
+  position: relative;
+}
+.online-dot::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: #4ade80;
+  border-radius: 50%;
+  border: 2px solid white;
+  animation: onlinePulse 2s ease-in-out infinite;
+}
+@keyframes onlinePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(74, 222, 128, 0);
+  }
+}
+
+/* ── SVG path draw animation (hero underline) ── */
+.animate-draw {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: drawLine 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.6s forwards;
+}
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
   }
 }

@@ -1,4 +1,10 @@
 /node_modules
 .env
+
+# ignore AI model files locally
+/aimodel/webservice/models/
+*.keras
+*.save
+
 __pycache__/
 *.pyc

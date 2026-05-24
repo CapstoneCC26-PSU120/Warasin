@@ -36,4 +36,42 @@ model ChatHistory {
   user User @relation(fields: [userId], references: [id])
 
   @@map("chat_history")
+=======
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  birthDate DateTime?
+  createdAt DateTime @default(now())
+
+  chatHistories ChatHistory[]
+  
+  @@map("users")
+}
+
+model ChatHistory {
+  id         String   @id @default(uuid())
+  userId     String
+
+  answers    Json
+
+  score      Float?
+  category   String?
+  advice     String?
+
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("chat_history")
 }

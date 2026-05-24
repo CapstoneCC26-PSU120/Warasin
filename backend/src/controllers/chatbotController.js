@@ -11,20 +11,41 @@ export const submitAnswer = async (req, res) => {
       });
     }
 
-    const aiResponse = await axios.post(
-      "http://127.0.0.1:8000/predict",
-      answers
-    );
+    const aiPayload = {
+      Gender: answers.gender,
+      Age: Number(answers.age),
+      Occupation: answers.occupation,
+      "Sleep Duration": Number(answers.sleep_duration),
+      "Quality of Sleep": Number(answers.sleep_quality),
+      "Physical Activity Level": Number(answers.physical_activity),
+      "BMI Category": answers.bmi,
+      "Heart Rate": Number(answers.heart_rate),
+      "Daily Steps": Number(answers.daily_steps),
+      "Sleep Disorder": answers.sleep_disorder || null,
+      BP_Systolic: Number(answers.bp_systolic),
+      BP_Diastolic: Number(answers.bp_diastolic),
+    };
+
+    console.log("aiPayload being sent:", JSON.stringify(aiPayload, null, 2));
+
+    // const aiResponse = await axios.post("http://127.0.0.1:8000/predict", aiPayload);
+    const aiResponse = await axios.post("http://localhost:8000/predict/stress", aiPayload);
 
     const aiResult = aiResponse.data;
+
+    // Ambil probabilitas sesuai class_index dan konversi ke persen
+    // const probMap = { 0: "Rendah", 1: "Sedang", 2: "Tinggi" };
+    // const probKey = probMap[aiResult.class_index];
+    // const score = Math.round(aiResult.probabilities[probKey] * 100);
+    const score = Math.round(aiResult.data.stress_score);
 
     const history = await prisma.chatHistory.create({
       data: {
         userId: req.user.userId,
         answers,
-        score: aiResult.class_index,
-        category: aiResult.label,
-        advice: aiResult.message,
+        score,
+        category: aiResult.data.label,
+        advice: aiResult.data.message,
       },
     });
 
@@ -37,7 +58,11 @@ export const submitAnswer = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    if (error.response) {
+      console.error("AI model error:", error.response.status, JSON.stringify(error.response.data));
+    } else {
+      console.error("submitAnswer error:", error.message);
+    }
 
     res.status(500).json({
       message: "Failed to process chatbot",
