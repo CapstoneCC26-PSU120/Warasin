@@ -1,5 +1,5 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/authMidleware.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 import {
   submitAnswer,
   getHistory,
