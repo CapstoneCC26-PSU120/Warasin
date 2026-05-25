@@ -25,14 +25,15 @@ function MeasurementPage() {
       const formData = new FormData();
       formData.append("image", file);
 
-      const response = await api.post("/face", formData, {
+      const response = await api.post("/face/analyze", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      console.log(response.data.data);
+
       if (response.data && response.data.data) {
         navigate({
-          to: "/result",
-          search: { id: response.data.data.id || undefined },
+          to: "/result/face",
           state: response.data.data,
         });
       }
