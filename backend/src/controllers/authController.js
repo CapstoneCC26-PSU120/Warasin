@@ -170,7 +170,7 @@ export const updateProfile = async (req, res) => {
       },
       data: {
         name,
-        birthDate: birthDate ? new Date(birthDate) : null,
+        birthDate: birthDate && birthDate !== "" ? new Date(birthDate) : null,
       },
     });
 

@@ -2,10 +2,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateProfileSchema, type UpdateProfileInput, useAuth, useUpdateProfile } from "../hooks/useAuth";
-import { User, Phone, Mail, Activity, Save } from "lucide-react";
+import { User, Calendar, Mail, Activity, Save } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -25,15 +26,23 @@ function Profile() {
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
       name: "",
-      phone: "",
+      birthDate: "",
     },
   });
 
   useEffect(() => {
     if (user) {
+      let formattedBirthDate = "";
+      if (user.birthDate) {
+        try {
+          formattedBirthDate = new Date(user.birthDate).toISOString().split("T")[0];
+        } catch (e) {
+          console.error("Error parsing user.birthDate:", e);
+        }
+      }
       reset({
         name: user.name || "",
-        phone: user.phone || "",
+        birthDate: formattedBirthDate,
       });
     }
   }, [user, reset]);
@@ -52,7 +61,15 @@ function Profile() {
   }
 
   const onSubmit = (data: UpdateProfileInput) => {
-    updateProfile(data);
+    updateProfile(data, {
+      onSuccess: () => {
+        toast.success("Profile updated successfully!");
+      },
+      onError: (err: any) => {
+        const errMsg = err?.response?.data?.message || "Failed to update profile";
+        toast.error(errMsg);
+      },
+    });
   };
 
   return (
@@ -113,19 +130,18 @@ function Profile() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Birth Date</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <Phone size={18} />
+                    <Calendar size={18} />
                   </div>
                   <input
-                    {...register("phone")}
-                    type="tel"
-                    placeholder="+62 8..."
+                    {...register("birthDate")}
+                    type="date"
                     className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                   />
                 </div>
-                {errors.phone && <p className="text-destructive text-xs mt-1">{errors.phone.message}</p>}
+                {errors.birthDate && <p className="text-destructive text-xs mt-1">{errors.birthDate.message}</p>}
               </div>
 
               <div className="pt-4 flex justify-end">

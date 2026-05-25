@@ -18,7 +18,7 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 
 export const updateProfileSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  phone: z.string().optional(),
+  birthDate: z.string().nullable().optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
