@@ -30,11 +30,11 @@ export const questions = [
       { label: "Pengacara", value: "Lawyer" },
       { label: "Manajer", value: "Manager" },
       { label: "Perawat", value: "Nurse" },
-      { label: "Sales Representative", value: "Sales Representative" },
       { label: "Salesperson", value: "Salesperson" },
       { label: "Ilmuwan / Peneliti", value: "Scientist" },
       { label: "Software Engineer", value: "Software Engineer" },
       { label: "Guru / Pengajar", value: "Teacher" },
+      { label: "Lainnya", value: "Sales Representative" },
     ],
   },
   {

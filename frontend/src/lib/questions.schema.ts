@@ -16,11 +16,11 @@ export const answerSchema = z.object({
       "Lawyer",
       "Manager",
       "Nurse",
-      "Sales Representative",
       "Salesperson",
       "Scientist",
       "Software Engineer",
       "Teacher",
+      "Sales Representative",
     ],
     {
       message: "Pilih pekerjaan yang valid",

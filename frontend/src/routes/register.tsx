@@ -33,7 +33,7 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center p-4 bg-gradient-to-br from-sky-50 via-white to-amber-50/60">
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center p-4 bg-linear-to-br from-sky-50 via-white to-amber-50/60">
       {/* Decorative blobs */}
       <div className="blob blob-yellow animate-blob w-80 h-80 -top-32 -right-32" />
       <div className="blob blob-blue animate-blob-delay-2 w-72 h-72 -bottom-28 -left-28" />
@@ -52,13 +52,13 @@ function Register() {
       {/* Card */}
       <div className="relative z-10 glass w-full max-w-md rounded-3xl shadow-card p-8 animate-fade-up-delay-1">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground mb-1.5">Create account ✨</h1>
-          <p className="text-muted-foreground text-sm">Start tracking your stress in seconds.</p>
+          <h1 className="text-2xl font-bold text-foreground mb-1.5">Buat akun ✨</h1>
+          <p className="text-muted-foreground text-sm">Mulai pantau stres Anda dalam hitungan detik.</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Name</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Nama</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
                 <User size={17} />
@@ -66,7 +66,7 @@ function Register() {
               <input
                 {...register("name")}
                 type="text"
-                placeholder="Your name"
+                placeholder="Nama lengkap Anda"
                 className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl bg-background/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all text-sm"
               />
             </div>
@@ -82,7 +82,7 @@ function Register() {
               <input
                 {...register("email")}
                 type="email"
-                placeholder="you@example.com"
+                placeholder="email@contoh.com"
                 className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl bg-background/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all text-sm"
               />
             </div>
@@ -90,7 +90,7 @@ function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Password</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Kata Sandi</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
                 <Lock size={17} />
@@ -109,7 +109,7 @@ function Register() {
 
           {error && (
             <div className="bg-destructive/10 text-destructive px-4 py-2.5 rounded-xl text-sm font-medium text-center animate-fade-up border border-destructive/20">
-              {(error as any)?.response?.data?.message || "Registration failed"}
+              {(error as any)?.response?.data?.message || "Gagal mendaftar"}
             </div>
           )}
 
@@ -121,11 +121,11 @@ function Register() {
             {isPending ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Creating account...
+                Sedang membuat akun...
               </span>
             ) : (
               <>
-                Create account
+                Buat akun
                 <ArrowRight size={16} />
               </>
             )}
@@ -133,7 +133,7 @@ function Register() {
 
           <div className="relative flex items-center py-3">
             <div className="grow border-t border-border" />
-            <span className="shrink-0 mx-4 text-muted-foreground text-xs font-medium">or</span>
+            <span className="shrink-0 mx-4 text-muted-foreground text-xs font-medium">atau</span>
             <div className="grow border-t border-border" />
           </div>
 
@@ -160,13 +160,13 @@ function Register() {
                 fill="#EA4335"
               />
             </svg>
-            Continue with Google
+            Lanjutkan dengan Google
           </button>
 
           <p className="text-center text-sm text-muted-foreground mt-3">
-            Already have one?{" "}
+            Sudah punya akun?{" "}
             <Link to="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
-              Log in
+              Masuk
             </Link>
           </p>
         </form>
@@ -174,8 +174,7 @@ function Register() {
 
       {/* Footer Text */}
       <p className="relative z-10 mt-8 text-muted-foreground text-xs animate-fade-up-delay-2">
-        By continuing you agree to our calm and <span className="text-accent-bright font-medium">friendly</span>{" "}
-        terms.
+        Dengan melanjutkan, Anda menyetujui ketentuan kami yang <span className="text-accent-bright font-medium">tenang dan bersahabat</span>.
       </p>
     </div>
   );

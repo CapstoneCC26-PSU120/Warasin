@@ -41,26 +41,26 @@ export function SiteHeader() {
               className="rounded-lg px-3 py-2 text-lg font-medium text-muted-foreground transition-smooth hover:text-foreground"
               activeProps={{ className: "text-foreground" }}
             >
-              Home
+              Beranda
             </Link>
             <Link
               to="/measurement"
               className="rounded-lg px-3 py-2 text-lg font-medium text-muted-foreground transition-smooth hover:text-foreground"
               activeProps={{ className: "text-foreground" }}
             >
-              Measure
+              Periksa
             </Link>
             <Link
               to="/history"
               className="rounded-lg px-3 py-2 text-lg font-medium text-muted-foreground transition-smooth hover:text-foreground"
               activeProps={{ className: "text-foreground" }}
             >
-              History
+              Riwayat
             </Link>
           </nav>
           <div className="flex items-center gap-4">
             <Button asChild variant="default" size="sm">
-              <Link to="/measurement">Start now</Link>
+              <Link to="/measurement">Mulai sekarang</Link>
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -84,19 +84,19 @@ export function SiteHeader() {
                 <DropdownMenuItem asChild>
                   <Link to="/profile" className="cursor-pointer w-full flex items-center">
                     <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <span>Profil</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/history" className="cursor-pointer w-full flex items-center">
                     <History className="mr-2 h-4 w-4" />
-                    <span>History</span>
+                    <span>Riwayat</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <span>Keluar</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -124,29 +124,29 @@ export function SiteHeader() {
             className="rounded-lg px-3 py-2 text-lg font-medium text-muted-foreground transition-smooth hover:text-foreground"
             activeProps={{ className: "text-foreground" }}
           >
-            Home
+            Beranda
           </Link>
           <Link
             to="/measurement"
             className="rounded-lg px-3 py-2 text-lg font-medium text-muted-foreground transition-smooth hover:text-foreground"
             activeProps={{ className: "text-foreground" }}
           >
-            Measure
+            Periksa
           </Link>
           <Link
             to="/history"
             className="rounded-lg px-3 py-2 text-lg font-medium text-muted-foreground transition-smooth hover:text-foreground"
             activeProps={{ className: "text-foreground" }}
           >
-            History
+            Riwayat
           </Link>
         </nav>
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm">
-            <Link to="/login">Log in</Link>
+            <Link to="/login">Masuk</Link>
           </Button>
           <Button asChild variant="default" size="sm">
-            <Link to="/measurement">Start now</Link>
+            <Link to="/measurement">Mulai sekarang</Link>
           </Button>
         </div>
       </div>

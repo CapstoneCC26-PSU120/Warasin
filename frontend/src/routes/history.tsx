@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Calendar,
@@ -41,6 +41,22 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/history")({
+  beforeLoad: async ({ context }) => {
+    try {
+      const user = await context.queryClient.ensureQueryData({
+        queryKey: ["auth", "me"],
+        queryFn: async () => {
+          const { data } = await api.get("/auth/me");
+          return data.user;
+        },
+      });
+      if (!user) {
+        throw redirect({ to: "/login" });
+      }
+    } catch (e) {
+      throw redirect({ to: "/login" });
+    }
+  },
   component: HistoryPage,
 });
 
@@ -66,7 +82,7 @@ function HistoryPage() {
         if (res.data && res.data.data) return res.data.data;
         return [];
       } catch (error) {
-        console.error("Failed to fetch history:", error);
+        console.error("Gagal mengambil riwayat:", error);
         return [];
       }
     },
@@ -74,14 +90,14 @@ function HistoryPage() {
 
   const getCategoryVariant = (category: string) => {
     const cat = category.toLowerCase();
-    if (cat.includes("low") || cat.includes("normal")) return "success";
-    if (cat.includes("medium") || cat.includes("moderate")) return "warning";
-    if (cat.includes("high") || cat.includes("severe")) return "destructive";
+    if (cat.includes("low") || cat.includes("normal") || cat.includes("rendah")) return "success";
+    if (cat.includes("medium") || cat.includes("moderate") || cat.includes("sedang")) return "warning";
+    if (cat.includes("high") || cat.includes("severe") || cat.includes("tinggi")) return "destructive";
     return "default";
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    return new Date(dateStr).toLocaleDateString("id-ID", {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -91,16 +107,15 @@ function HistoryPage() {
   };
 
   const handleDelete = async (id: string) => {
-    // TODO: Connect this to your backend API to delete the history item
-    console.log("Delete history item with ID:", id);
+    console.log("Hapus riwayat dengan ID:", id);
     try {
       const res = await api.delete(`/chatbot/history/${id}`);
       if (res.data) {
-        toast.success("History item deleted successfully.");
+        toast.success("Catatan riwayat berhasil dihapus.");
         refetch();
       }
     } catch (error) {
-      toast.error("Failed to delete history item.");
+      toast.error("Gagal menghapus catatan riwayat.");
     }
   };
 
@@ -130,20 +145,17 @@ function HistoryPage() {
                   to="/"
                   className="hover:text-primary transition-colors flex items-center gap-1"
                 >
-                  <ArrowLeft className="h-3 w-3" /> Home
+                  <ArrowLeft className="h-3 w-3" /> Beranda
                 </Link>
                 <span>/</span>
-                <span className="text-foreground font-medium">History</span>
+                <span className="text-foreground font-medium">Riwayat</span>
               </div>
-              <h1 className="text-3xl font-bold tracking-tight">Wellbeing Dashboard</h1>
-              <p className="text-muted-foreground">Monitor your stress patterns over time.</p>
+              <h1 className="text-3xl font-bold tracking-tight">Dasbor Kesejahteraan</h1>
+              <p className="text-muted-foreground">Pantau pola stres Anda dari waktu ke waktu.</p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="glass">
-                <Filter className="mr-2 h-4 w-4" /> Filter
-              </Button>
               <Button asChild size="sm" variant="hero">
-                <Link to="/measurement">New Check-in</Link>
+                <Link to="/measurement">Pemeriksaan Baru</Link>
               </Button>
             </div>
           </div>
@@ -153,13 +165,13 @@ function HistoryPage() {
             <Card className="glass border-none shadow-soft overflow-hidden group">
               <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Average Stress Score</CardTitle>
+                <CardTitle className="text-sm font-medium">Rata-rata Skor Stres</CardTitle>
                 <TrendingUp className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{avgScore}</div>
                 <p className="text-xs text-muted-foreground">
-                  Based on {totalMeasurements} check-ins
+                  Berdasarkan {totalMeasurements} pemeriksaan
                 </p>
                 <div className="mt-4 h-1 w-full bg-muted rounded-full overflow-hidden">
                   <div
@@ -173,15 +185,15 @@ function HistoryPage() {
             <Card className="glass border-none shadow-soft overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-accent-bright" />
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Latest Category</CardTitle>
+                <CardTitle className="text-sm font-medium">Kategori Terbaru</CardTitle>
                 <LayoutDashboard className="h-4 w-4 text-accent-bright" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {lastMeasurement ? lastMeasurement.category : "No Data"}
+                  {lastMeasurement ? lastMeasurement.category : "Tidak Ada Data"}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Recorded on {lastMeasurement ? formatDate(lastMeasurement.createdAt) : "N/A"}
+                  Tercatat pada {lastMeasurement ? formatDate(lastMeasurement.createdAt) : "N/A"}
                 </p>
                 {lastMeasurement && (
                   <Badge className="mt-4" variant={getCategoryVariant(lastMeasurement.category)}>
@@ -194,15 +206,15 @@ function HistoryPage() {
             <Card className="glass border-none shadow-soft overflow-hidden">
               <div className="absolute top-0 left-0 w-1 h-full bg-green-500" />
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Sessions</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Sesi</CardTitle>
                 <LineChart className="h-4 w-4 text-green-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalMeasurements}</div>
-                <p className="text-xs text-muted-foreground">Measurements completed</p>
+                <p className="text-xs text-muted-foreground">Pemeriksaan selesai</p>
                 <div className="flex items-center gap-1 mt-4 text-xs font-medium text-green-600">
                   <TrendingUp className="h-3 w-3" />
-                  <span>Consistency is key</span>
+                  <span>Konsistensi adalah kunci</span>
                 </div>
               </CardContent>
             </Card>
@@ -211,23 +223,23 @@ function HistoryPage() {
           {/* Main Content - Table */}
           <Card className="glass border-none shadow-card animate-fade-up-delay-2">
             <CardHeader className="pb-3">
-              <CardTitle>Recent Measurements</CardTitle>
+              <CardTitle>Pemeriksaan Terakhir</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                   <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                  <p className="text-muted-foreground animate-pulse">Retrieving your journey...</p>
+                  <p className="text-muted-foreground animate-pulse">Mengambil perjalanan kesejahteraan Anda...</p>
                 </div>
               ) : history && history.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-border/50">
-                      <TableHead className="w-[180px]">Date & Time</TableHead>
-                      <TableHead>Stress Score</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead className="hidden md:table-cell">Key Answer</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
+                      <TableHead className="w-[180px]">Tanggal & Waktu</TableHead>
+                      <TableHead>Skor Stres</TableHead>
+                      <TableHead>Kategori</TableHead>
+                      <TableHead className="hidden md:table-cell">Jawaban Kunci</TableHead>
+                      <TableHead className="text-right">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -264,15 +276,14 @@ function HistoryPage() {
                         <TableCell className="hidden md:table-cell text-muted-foreground text-sm">
                           <div className="flex items-center gap-2">
                             <Info className="h-3.5 w-3.5" />
-                            {item.answers.occupation || "N/A"} • Sleep:{" "}
-                            {item.answers.sleep_duration || "N/A"}h
+                            Tidur: {item.answers.sleep_duration || "N/A"} jam
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button variant="ghost" size="sm" asChild>
                               <Link to="/result" search={{ id: item.id }}>
-                                View Details <ChevronRight className="ml-1 h-3 w-3" />
+                                Lihat Detail <ChevronRight className="ml-1 h-3 w-3" />
                               </Link>
                             </Button>
                             <AlertDialog>
@@ -287,10 +298,9 @@ function HistoryPage() {
                               </AlertDialogTrigger>
                               <AlertDialogContent className="glass shadow-card border-none">
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete check-in record?</AlertDialogTitle>
+                                  <AlertDialogTitle>Hapus catatan pemeriksaan?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This will permanently remove this stress measurement from your
-                                    history. This action cannot be undone.
+                                    Tindakan ini akan menghapus pengukuran stres ini secara permanen dari riwayat Anda. Tindakan ini tidak dapat dibatalkan.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -299,14 +309,14 @@ function HistoryPage() {
                                     size="default"
                                     className="border-border hover:bg-accent/5"
                                   >
-                                    Cancel
+                                    Batal
                                   </AlertDialogCancel>
                                   <AlertDialogAction
                                     variant="destructive"
                                     size="default"
                                     onClick={() => handleDelete(item.id)}
                                   >
-                                    Delete
+                                    Hapus
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -322,12 +332,12 @@ function HistoryPage() {
                   <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                     <MessageSquare className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold">No measurements yet</h3>
+                  <h3 className="text-lg font-semibold">Belum ada pemeriksaan</h3>
                   <p className="text-muted-foreground max-w-xs mb-6">
-                    Start your first stress analysis to see your history here.
+                    Mulai analisis stres pertama Anda untuk melihat riwayat Anda di sini.
                   </p>
                   <Button asChild variant="hero">
-                    <Link to="/measurement">Get Started</Link>
+                    <Link to="/measurement">Mulai Sekarang</Link>
                   </Button>
                 </div>
               )}

@@ -4,8 +4,8 @@ export function SiteFooter() {
       <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
         <p>
           © {new Date().getFullYear()}{" "}
-          <span className="font-semibold text-foreground">Warasin</span> — Mindful tools for a{" "}
-          <span className="text-accent-bright font-medium">brighter</span> day.
+          <span className="font-semibold text-foreground">Warasin</span> — Alat kesehatan mental untuk hari yang lebih{" "}
+          <span className="text-accent-bright font-medium">cerah</span>.
         </p>
       </div>
     </footer>
