@@ -29,7 +29,7 @@ export const submitAnswer = async (req, res) => {
     console.log("aiPayload being sent:", JSON.stringify(aiPayload, null, 2));
 
     // const aiResponse = await axios.post("http://127.0.0.1:8000/predict", aiPayload);
-    const aiResponse = await axios.post("http://localhost:8000/predict/stress", aiPayload);
+    const aiResponse = await axios.post(`${process.env.FASTAPI_URL}/predict/stress`, aiPayload);
 
     const aiResult = aiResponse.data;
 
