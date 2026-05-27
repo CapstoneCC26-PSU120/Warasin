@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "vite dev --port 4000",
     "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "start": "vite --port 4000"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
