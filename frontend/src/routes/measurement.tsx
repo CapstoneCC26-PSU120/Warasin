@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Chatbot } from "@/components/Chatbot";
 import React, { useState, useRef } from "react";
@@ -6,6 +6,22 @@ import { Camera, MessageCircle, Upload, Sparkles, Loader2 } from "lucide-react";
 import api from "@/lib/api";
 
 export const Route = createFileRoute("/measurement")({
+  beforeLoad: async ({ context }) => {
+    try {
+      const user = await context.queryClient.ensureQueryData({
+        queryKey: ["auth", "me"],
+        queryFn: async () => {
+          const { data } = await api.get("/auth/me");
+          return data.user;
+        },
+      });
+      if (!user) {
+        throw redirect({ to: "/login" });
+      }
+    } catch (e) {
+      throw redirect({ to: "/login" });
+    }
+  },
   component: MeasurementPage,
 });
 
@@ -25,20 +41,21 @@ function MeasurementPage() {
       const formData = new FormData();
       formData.append("image", file);
 
-      const response = await api.post("/face", formData, {
+      const response = await api.post("/face/analyze", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      console.log(response.data.data);
+
       if (response.data && response.data.data) {
         navigate({
-          to: "/result",
-          search: { id: response.data.data.id || undefined },
+          to: "/result/face",
           state: response.data.data,
         });
       }
     } catch (error) {
       console.error("Upload failed", error);
-      alert("Failed to analyze face. Please try again.");
+      alert("Gagal menganalisis wajah. Silakan coba lagi.");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -59,13 +76,13 @@ function MeasurementPage() {
         <div className="text-center mb-10 animate-fade-up">
           <div className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-sm font-medium text-muted-foreground mb-6 shadow-sm">
             <Sparkles className="h-3.5 w-3.5 text-accent-bright" />
-            Take a deep breath
+            Tarik napas dalam-dalam
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            How are you feeling <span className="text-accent-bright">today</span>?
+            Bagaimana perasaanmu <span className="text-accent-bright">hari ini</span>?
           </h1>
           <p className="text-muted-foreground text-lg max-w-lg mx-auto">
-            Choose your preferred way to check in. Both methods are quick and gentle.
+            Pilih cara yang kamu sukai untuk masuk. Kedua metode ini cepat dan menenangkan.
           </p>
         </div>
 
@@ -80,7 +97,7 @@ function MeasurementPage() {
             }`}
           >
             <Camera className="w-4 h-4" />
-            Face
+            Wajah
           </button>
           <button
             onClick={() => setActiveTab("chat")}
@@ -91,17 +108,18 @@ function MeasurementPage() {
             }`}
           >
             <MessageCircle className="w-4 h-4" />
-            Chat
+            Obrolan
           </button>
         </div>
 
         {/* Content Area */}
         <div className="w-full max-w-3xl animate-fade-up-delay-2">
           {activeTab === "face" ? (
-            <div className="glass rounded-3xl p-8 shadow-card w-full min-h-[400px]">
-              <h2 className="text-xl font-semibold text-foreground mb-2">Upload a face photo</h2>
-              <p className="text-muted-foreground mb-10 text-sm">
-                A clear, well-lit selfie works best. Your image stays on your device.
+            <div className="glass rounded-3xl p-8 shadow-card w-full">
+              <h2 className="text-xl font-semibold text-foreground mb-2">Unggah foto wajah</h2>
+              <p className="text-muted-foreground mb-4 text-sm">
+                Selfie yang jelas dan cukup cahaya bekerja paling baik. Gambarmu tetap berada di
+                perangkatmu.
               </p>
 
               <input
@@ -127,16 +145,21 @@ function MeasurementPage() {
                 <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm group-hover:bg-primary/20">
                   <Upload className="w-7 h-7 text-primary" />
                 </div>
-                <span className="font-medium text-foreground">Upload File</span>
-                <span className="text-xs text-muted-foreground mt-1.5">PNG or JPG, up to 10MB</span>
+                <span className="font-medium text-foreground">Unggah Berkas</span>
+                <span className="text-xs text-muted-foreground mt-1.5">
+                  PNG atau JPG, hingga 10MB
+                </span>
               </div>
 
               {isUploading && (
                 <div className="mt-8 flex flex-col items-center justify-center text-primary animate-pulse">
                   <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                  <p className="font-medium">Analyzing your face...</p>
+                  <p className="font-medium">Menganalisis wajahmu...</p>
                 </div>
               )}
+              <p className="text-xs text-muted-foreground/50 mt-6 italic">
+                *Warasin dapat membuat kesalahan
+              </p>
             </div>
           ) : (
             <Chatbot />

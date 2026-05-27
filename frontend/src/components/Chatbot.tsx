@@ -225,7 +225,7 @@ export function Chatbot() {
           <span className="text-[11px] font-medium text-slate-400">{progress}%</span>
           <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all duration-500 ease-out"
+              className="h-full bg-linear-to-r from-primary to-primary/70 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -233,7 +233,7 @@ export function Chatbot() {
       </div>
 
       {/* Messages Area */}
-      <div className="relative z-10 flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-slate-50/80 to-white/60">
+      <div className="relative z-10 flex-1 overflow-y-auto p-5 space-y-4 bg-linear-to-b from-slate-50/80 to-white/60">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -251,7 +251,7 @@ export function Chatbot() {
                 </div>
               </div>
             ) : (
-              <div className="max-w-[75%] px-4 py-3 text-[14px] leading-relaxed bg-gradient-to-br from-primary to-primary/90 text-white rounded-2xl rounded-br-sm shadow-sm">
+              <div className="max-w-[75%] px-4 py-3 text-[14px] leading-relaxed bg-linear-to-br from-primary to-primary/90 text-white rounded-2xl rounded-br-sm shadow-sm">
                 {msg.text}
               </div>
             )}
@@ -288,8 +288,9 @@ export function Chatbot() {
               {currentOptions.map((opt, i) => (
                 <button
                   key={i}
+                  disabled={isTyping || isSubmitting}
                   onClick={() => handleOptionSelect(opt)}
-                  className="px-4 py-2 text-sm font-medium rounded-full bg-primary/5 text-primary border border-primary/15 hover:bg-primary hover:text-white hover:border-primary hover:shadow-sm active:scale-95 transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium rounded-full bg-primary/5 text-primary border border-primary/15 hover:bg-primary hover:text-white hover:border-primary hover:shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {opt.label}
                 </button>
@@ -308,17 +309,18 @@ export function Chatbot() {
               <input
                 type="text"
                 value={inputValue}
+                disabled={isTyping || isSubmitting}
                 onChange={(e) => {
                   setInputValue(e.target.value);
                   if (errorMsg) setErrorMsg("");
                 }}
-                placeholder={(currentQ as any).placeholder || "Ketik jawabanmu di sini..."}
-                className="w-full px-5 py-3.5 bg-slate-50/80 rounded-full border border-slate-200/80 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 text-sm text-slate-700 transition-all placeholder:text-slate-400"
+                placeholder={isTyping || isSubmitting ? "Wara sedang mengetik..." : ((currentQ as any).placeholder || "Ketik jawabanmu di sini...")}
+                className="w-full px-5 py-3.5 bg-slate-50/80 rounded-full border border-slate-200/80 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 text-sm text-slate-700 transition-all placeholder:text-slate-400 disabled:opacity-50"
                 autoFocus
               />
               <button
                 type="submit"
-                disabled={!inputValue.trim()}
+                disabled={!inputValue.trim() || isTyping || isSubmitting}
                 className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 bg-primary hover:bg-primary/90 disabled:bg-slate-200 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white transition-all duration-200 active:scale-90 shadow-sm"
               >
                 <Send className="w-4 h-4" />
