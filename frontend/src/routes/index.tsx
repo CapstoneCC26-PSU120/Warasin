@@ -15,7 +15,7 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
-import heroImage from "@/assets/hero-calm.png";
+import heroImage from "@/assets/hero.png";
 import { SiteHeader } from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/")({ component: Index });
