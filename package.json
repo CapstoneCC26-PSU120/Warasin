@@ -3,6 +3,14 @@
     "prettier": "^3.8.3"
   },
   "scripts": {
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build:frontend": "npm --prefix frontend run build",
+    "start:frontend": "npm --prefix frontend run start",
+    "build:backend": "npx prisma generate --schema=backend/prisma/schema.prisma",
+    "start:backend": "node backend/src/server.js",
+    "build:ai": "cd aimodel/webservice && ./venv/bin/pip install -r requirements.txt",
+    "start:ai": "cd aimodel/webservice && ./venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000",
+    "build:all": "npm run build:frontend && npm run build:backend && npm run build:ai",
+    "start:all": "npm run start:frontend & npm run start:backend & npm run start:ai"
   }
 }

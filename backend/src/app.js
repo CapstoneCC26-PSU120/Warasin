@@ -11,7 +11,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:4000",
+    origin: ["http://localhost:4000", "https://project-sp824.vercel.app"],
+
     credentials: true,
   }),
 );
