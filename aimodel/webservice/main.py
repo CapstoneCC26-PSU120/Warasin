@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 import joblib
 import numpy as np
@@ -8,12 +8,75 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras import layers
-from tensorflow.keras.applications import EfficientNetB0
 import cv2
 import io
 import os
 from datetime import datetime, timezone
 from PIL import Image
+
+# ══════════════════════════════════════════════════════════
+#  Download Model dari Google Drive jika Tidak Ada / Pointer LFS
+# ══════════════════════════════════════════════════════════
+import gdown
+
+# Ganti ID berikut dengan File ID asli dari Google Drive milikmu
+# ID di bawah ini diambil dari link Google Drive yang kamu berikan
+PREPROCESSOR_DRIVE_ID = "1m1S5tTwiBxhftqpq4HWI5KhLVYatRVwY" 
+STRESS_DRIVE_ID       = "GANTI_DENGAN_ID_FILE_STRESS_MODEL_KAMU"
+EMOTION_DRIVE_ID      = "GANTI_DENGAN_ID_FILE_EMOTION_MODEL_KAMU"
+
+def download_from_drive_if_needed(file_id: str, filename: str):
+    target_path = os.path.join(MODELS_DIR, filename)
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    
+    # Cek apakah file tidak ada ATAU ukurannya sangat kecil (ciri-ciri file pointer Git LFS biasanya < 1 MB)
+    if not os.path.exists(target_path) or os.path.getsize(target_path) < 1000000:
+        print(f"📥 {filename} tidak ditemukan atau berupa pointer LFS. Mengunduh dari Google Drive...")
+        url = f"https://drive.google.com/uc?id={file_id}"
+        try:
+            # Menggunakan gdown untuk handling file besar dari Drive
+            gdown.download(url, target_path, quiet=False)
+            print(f"✅ Berhasil mengunduh {filename}")
+        except Exception as e:
+            print(f"❌ Gagal mengunduh {filename} dari Google Drive: {e}")
+    else:
+        print(f"📦 {filename} sudah ada di lokal dan siap dimuat.")
+
+# Eksekusi download otomatis sebelum load_model dijalankan
+download_from_drive_if_needed(PREPROCESSOR_DRIVE_ID, "prepocessor.save")
+download_from_drive_if_needed(STRESS_DRIVE_ID, "stress_level_prediction_model.keras")
+download_from_drive_if_needed(EMOTION_DRIVE_ID, "emotion_model.keras")
+
+
+# ══════════════════════════════════════════════════════════
+#  Load Model saat Server Start
+# ══════════════════════════════════════════════════════════
+try:
+    preprocessor = joblib.load(os.path.join(MODELS_DIR, "prepocessor.save"))
+    stress_model = load_model(
+        os.path.join(MODELS_DIR, "stress_level_prediction_model.keras"),
+        custom_objects={"CustomDense": CustomDense},
+        compile=False
+    )
+    stress_model.compile(
+        optimizer='adam',
+        loss='sparse_categorical_crossentropy',
+        metrics=['accuracy']
+    )
+    print("✅ Stress model & preprocessor berhasil dimuat")
+except Exception as e:
+    import traceback
+    traceback.print_exc()
+    print(f"❌ Gagal memuat stress model: {e}")
+    preprocessor = None
+    stress_model = None
+
+try:
+    emotion_model = load_model(os.path.join(MODELS_DIR, "emotion_model.keras"))
+    print("✅ Emotion model berhasil dimuat")
+except Exception as e:
+    print(f"❌ Gagal memuat emotion model: {e}")
+    emotion_model = None
 
 # ══════════════════════════════════════════════════════════
 #  Custom Layer & Patches
@@ -24,6 +87,8 @@ class CustomDense(layers.Layer):
     def __init__(self, units, **kwargs):
         super(CustomDense, self).__init__(**kwargs)
         self.units = units
+        self.w = None
+        self.b = None
 
     def build(self, input_shape):
         self.w = self.add_weight(
@@ -46,8 +111,7 @@ class CustomDense(layers.Layer):
         return config
 
 
-# Patch Dense layer agar kompatibel dengan model
-# yang disimpan oleh versi Keras berbeda
+# Patch Dense layer agar kompatibel dengan model yang disimpan oleh versi Keras berbeda
 _OriginalDenseInit = layers.Dense.__init__
 
 def _patched_dense_init(self, *args, **kwargs):
@@ -86,7 +150,6 @@ MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 # --- Stress ---
 STRESS_LABEL_MAP = {0: "Rendah", 1: "Sedang", 2: "Tinggi"}
-LABEL_MAP = STRESS_LABEL_MAP
 
 STRESS_MESSAGES = {
     "Rendah": "Tingkat stres Anda rendah. Pertahankan gaya hidup sehat Anda!",
@@ -105,7 +168,7 @@ VALID_DISORDERS   = ["Insomnia", "Sleep Apnea", None]
 
 # --- Emotion ---
 EMOTION_CLASSES   = ["Angry", "Disgust", "Fear", "Happy", "Sad", "Surprise"]
-EMOTION_IMG_SIZE  = (96, 96)     # ukuran input sesuai training model
+EMOTION_IMG_SIZE  = (96, 96)     
 MAX_FILE_SIZE_MB  = 5
 ALLOWED_TYPES     = {"image/jpeg", "image/jpg", "image/png"}
 
@@ -113,7 +176,6 @@ ALLOWED_TYPES     = {"image/jpeg", "image/jpg", "image/png"}
 # ══════════════════════════════════════════════════════════
 #  Load Model saat Server Start
 # ══════════════════════════════════════════════════════════
-# ── Stress model ──
 try:
     preprocessor = joblib.load(os.path.join(MODELS_DIR, "prepocessor.save"))
     stress_model = load_model(
@@ -126,7 +188,6 @@ try:
         loss='sparse_categorical_crossentropy',
         metrics=['accuracy']
     )
-    model = stress_model
     print("✅ Stress model & preprocessor berhasil dimuat")
 except Exception as e:
     import traceback
@@ -134,9 +195,7 @@ except Exception as e:
     print(f"❌ Gagal memuat stress model: {e}")
     preprocessor = None
     stress_model = None
-    model = None
 
-# ── Emotion model ──
 try:
     emotion_model = load_model(os.path.join(MODELS_DIR, "emotion_model.keras"))
     print("✅ Emotion model berhasil dimuat")
@@ -146,131 +205,49 @@ except Exception as e:
 
 
 # ══════════════════════════════════════════════════════════
-#  Helper: Preprocessing Gambar & Inferensi
-# ══════════════════════════════════════════════════════════
-def preprocess_image(image_bytes: bytes) -> np.ndarray:
-    """
-    Konversi bytes gambar → tensor (1, 96, 96, 3) siap diinfer.
-
-    Pipeline:
-      1. Buka gambar apapun (RGB, RGBA, dsb.)
-      2. Konversi ke Grayscale (L) → mensimulasikan kondisi training
-      3. Konversi kembali ke RGB dengan menduplikat channel (R=G=B)
-         sehingga model menerima input 3-channel tapi tanpa info warna
-      4. Resize ke ukuran input (96x96)
-      5. Preprocessing: pixel / 127.5 - 1  →  range [-1, 1]
-    """
-    img = Image.open(io.BytesIO(image_bytes))
-
-    # Tangani RGBA / palette (misal PNG transparan)
-    if img.mode in ("RGBA", "P"):
-        img = img.convert("RGBA")
-        background = Image.new("RGB", img.size, (255, 255, 255))
-        background.paste(img, mask=img.split()[3])   # tempel pakai alpha channel
-        img = background
-
-    # Grayscale → RGB (duplikat channel agar model tidak "kaget")
-    img = img.convert("L").convert("RGB")
-
-    img = img.resize(EMOTION_IMG_SIZE, Image.LANCZOS)
-    arr = np.array(img, dtype=np.float32)
-    arr = tf.keras.applications.efficientnet.preprocess_input(arr)
-    return np.expand_dims(arr, axis=0)
-
-
-def detect_face_opencv(image_bytes: bytes) -> bool:
-    """
-    Cek apakah ada wajah dalam gambar menggunakan Haar Cascade (opsional).
-    Return True jika wajah terdeteksi, False jika tidak.
-    """
-    cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-    face_cascade = cv2.CascadeClassifier(cascade_path)
-
-    nparr = np.frombuffer(image_bytes, np.uint8)
-    img   = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    gray  = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
-    return len(faces) > 0
-
-
-def _run_emotion_inference(image_bytes: bytes, source: str) -> "EmotionOutput":
-    if emotion_model is None:
-        raise HTTPException(status_code=503, detail="Emotion model belum siap, coba beberapa saat lagi.")
-
-    # Cek wajah terdeteksi
-    face_found = detect_face_opencv(image_bytes)
-    if not face_found:
-        raise HTTPException(
-            status_code=422,
-            detail="Wajah tidak terdeteksi dalam gambar. Pastikan wajah menghadap ke depan (frontal)."
-        )
-
-    try:
-        tensor = preprocess_image(image_bytes)
-        probs  = emotion_model.predict(tensor)[0]          # shape: (6,)
-
-        class_index    = int(np.argmax(probs))
-        predicted_class = EMOTION_CLASSES[class_index]
-        confidence      = round(float(probs[class_index]), 4)
-
-        prob_dict = {cls: round(float(p), 4) for cls, p in zip(EMOTION_CLASSES, probs)}
-
-        return EmotionOutput(
-            success=True,
-            timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            source=source,
-            data=EmotionData(
-                predicted_class=predicted_class,
-                confidence=confidence,
-                predictions_probability=EmotionProbability(**prob_dict)
-            )
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Terjadi kesalahan inferensi: {str(e)}")
-
-
-# ══════════════════════════════════════════════════════════
 #  Schemas: Stress Prediction (Standard /predict)
 # ══════════════════════════════════════════════════════════
 class StressInput(BaseModel):
-    Gender: str                   = Field(..., example="Female")
-    Age: int                      = Field(..., ge=18, le=100, example=28)
-    Occupation: str               = Field(..., example="Nurse")
-    Sleep_Duration: float         = Field(..., ge=0, le=24, example=6.5, alias="Sleep Duration")
-    Quality_of_Sleep: int         = Field(..., ge=1, le=10, example=5, alias="Quality of Sleep")
-    Physical_Activity_Level: int  = Field(..., ge=0, le=180, example=30, alias="Physical Activity Level")
-    BMI_Category: str             = Field(..., example="Normal", alias="BMI Category")
-    Heart_Rate: int               = Field(..., ge=40, le=200, example=80, alias="Heart Rate")
-    Daily_Steps: int              = Field(..., ge=0, le=50000, example=4000, alias="Daily Steps")
-    Sleep_Disorder: Optional[str] = Field(None, example=None, alias="Sleep Disorder")
-    BP_Systolic: int              = Field(..., ge=80, le=200, example=125)
-    BP_Diastolic: int             = Field(..., ge=50, le=130, example=82)
+    Gender: str                   = Field(..., examples=["Female"])
+    Age: int                      = Field(..., ge=18, le=100, examples=[28])
+    Occupation: str               = Field(..., examples=["Nurse"])
+    Sleep_Duration: float         = Field(..., ge=0, le=24, examples=[6.5], alias="Sleep Duration")
+    Quality_of_Sleep: int         = Field(..., ge=1, le=10, examples=[5], alias="Quality of Sleep")
+    Physical_Activity_Level: int  = Field(..., ge=0, le=180, examples=[30], alias="Physical Activity Level")
+    BMI_Category: str             = Field(..., examples=["Normal"], alias="BMI Category")
+    Heart_Rate: int               = Field(..., ge=40, le=200, examples=[80], alias="Heart Rate")
+    Daily_Steps: int              = Field(..., ge=0, le=50000, examples=[4000], alias="Daily Steps")
+    Sleep_Disorder: Optional[str] = Field(None, examples=[None], alias="Sleep Disorder")
+    BP_Systolic: int              = Field(..., ge=80, le=200, examples=[125])
+    BP_Diastolic: int             = Field(..., ge=50, le=130, examples=[82])
 
-    class Config:
-        populate_by_name = True
+    model_config = {
+        "populate_by_name": True
+    }
 
-    @validator("Gender")
+    @field_validator("Gender")
+    @classmethod
     def validate_gender(cls, v):
         if v not in VALID_GENDERS:
             raise ValueError(f"Gender harus salah satu dari: {VALID_GENDERS}")
         return v
 
-    @validator("Occupation")
+    @field_validator("Occupation")
+    @classmethod
     def validate_occupation(cls, v):
         if v not in VALID_OCCUPATIONS:
             raise ValueError(f"Occupation tidak valid. Pilihan: {VALID_OCCUPATIONS}")
         return v
 
-    @validator("BMI_Category", pre=True)
+    @field_validator("BMI_Category", mode="before")
+    @classmethod
     def validate_bmi(cls, v):
         if v not in VALID_BMI:
             raise ValueError(f"BMI Category harus salah satu dari: {VALID_BMI}")
         return v
 
-    @validator("Sleep_Disorder", pre=True)
+    @field_validator("Sleep_Disorder", mode="before")
+    @classmethod
     def validate_disorder(cls, v):
         if v not in VALID_DISORDERS:
             raise ValueError(f"Sleep Disorder harus salah satu dari: {VALID_DISORDERS}")
@@ -292,11 +269,6 @@ class StressOutput(BaseModel):
 # ══════════════════════════════════════════════════════════
 #  Schemas: Stress Prediction V2 (/predict/stress)
 # ══════════════════════════════════════════════════════════
-class ProbabilityStress(BaseModel):
-    Rendah: float
-    Sedang: float
-    Tinggi: float
-
 class StressOutputV2(BaseModel):
     success: bool
     timestamp: str
@@ -322,8 +294,80 @@ class EmotionData(BaseModel):
 class EmotionOutput(BaseModel):
     success: bool
     timestamp: str
-    source: str   # "upload" | "camera"
+    source: str   
     data: EmotionData
+
+
+# ══════════════════════════════════════════════════════════
+#  Helper: Preprocessing Gambar & Inferensi
+# ══════════════════════════════════════════════════════════
+def preprocess_image(image_bytes: bytes) -> np.ndarray:
+    img = Image.open(io.BytesIO(image_bytes))
+
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGBA")
+        background = Image.new("RGB", img.size, (255, 255, 255))
+        background.paste(img, mask=img.split()[3])   
+        img = background
+
+    img = img.convert("L").convert("RGB")
+    img = img.resize(EMOTION_IMG_SIZE, Image.LANCZOS)
+    arr = np.array(img, dtype=np.float32)
+    arr = tf.keras.applications.efficientnet.preprocess_input(arr)
+    return np.expand_dims(arr, axis=0)
+
+
+def detect_face_opencv(image_bytes: bytes) -> bool:
+    cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+    if not os.path.exists(cascade_path):
+        # Fallback jika di environment tertentu path di atas tidak terbaca
+        return True 
+        
+    face_cascade = cv2.CascadeClassifier(cascade_path)
+    nparr = np.frombuffer(image_bytes, np.uint8)
+    img   = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    
+    if img is None:
+        return False
+        
+    gray  = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+    return len(faces) > 0
+
+
+def _run_emotion_inference(image_bytes: bytes, source: str) -> EmotionOutput:
+    if emotion_model is None:
+        raise HTTPException(status_code=503, detail="Emotion model belum siap, coba beberapa saat lagi.")
+
+    face_found = detect_face_opencv(image_bytes)
+    if not face_found:
+        raise HTTPException(
+            status_code=422,
+            detail="Wajah tidak terdeteksi dalam gambar. Pastikan wajah menghadap ke depan (frontal)."
+        )
+
+    try:
+        tensor = preprocess_image(image_bytes)
+        probs  = emotion_model.predict(tensor)[0]          
+
+        class_index    = int(np.argmax(probs))
+        predicted_class = EMOTION_CLASSES[class_index]
+        confidence      = round(float(probs[class_index]), 4)
+
+        prob_dict = {cls: round(float(p), 4) for cls, p in zip(EMOTION_CLASSES, probs)}
+
+        return EmotionOutput(
+            success=True,
+            timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            source=source,
+            data=EmotionData(
+                predicted_class=predicted_class,
+                confidence=confidence,
+                predictions_probability=EmotionProbability(**prob_dict)
+            )
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Terjadi kesalahan inferensi: {str(e)}")
 
 
 # ══════════════════════════════════════════════════════════
@@ -357,16 +401,10 @@ def health_check():
     summary="Prediksi tingkat stres dari data kesehatan (Standard)"
 )
 def predict(data: StressInput):
-    """
-    Menerima data kesehatan (tidur, aktivitas, BMI, dll.) dan
-    mengembalikan prediksi tingkat stres: **Rendah / Sedang / Tinggi**.
-    Probabilitas bertipe float dalam skala 0–1.
-    """
     if stress_model is None or preprocessor is None:
         raise HTTPException(status_code=503, detail="Model belum siap, coba beberapa saat lagi")
 
     try:
-        # 1. Buat DataFrame dengan nama kolom sesuai training
         df = pd.DataFrame([{
             "Gender"                  : data.Gender,
             "Age"                     : data.Age,
@@ -382,10 +420,7 @@ def predict(data: StressInput):
             "BP_Diastolic"            : data.BP_Diastolic,
         }])
 
-        # 2. Transform: 12 kolom → 27 fitur
         X = preprocessor.transform(df)
-
-        # 3. Prediksi
         probs       = stress_model.predict(X)[0]
         class_index = int(np.argmax(probs))
         label       = STRESS_LABEL_MAP[class_index]
@@ -400,7 +435,6 @@ def predict(data: StressInput):
             ),
             message=STRESS_MESSAGES[label]
         )
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Terjadi kesalahan: {str(e)}")
 
@@ -415,11 +449,6 @@ def predict(data: StressInput):
     response_model=StressOutputV2
 )
 def predict_stress(data: StressInput):
-    """
-    Menerima data kesehatan (tidur, aktivitas, BMI, dll.) dan
-    mengembalikan prediksi tingkat stres: **Rendah / Sedang / Tinggi** (format respons V2).
-    Probabilitas bertipe float dalam skala persen 0–100.
-    """
     if stress_model is None or preprocessor is None:
         raise HTTPException(status_code=503, detail="Stress model belum siap, coba beberapa saat lagi.")
 
@@ -444,7 +473,6 @@ def predict_stress(data: StressInput):
         class_index = int(np.argmax(probs))
         label       = STRESS_LABEL_MAP[class_index]
 
-        # ── Hitung stress score skala 0–100 ──────────────────
         MIDPOINTS    = [16.5, 50.0, 83.5]
         stress_score = round(float(np.dot(probs, MIDPOINTS)), 1)
 
@@ -468,13 +496,12 @@ def predict_stress(data: StressInput):
                 "message": STRESS_MESSAGES[label]
             }
         )
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Terjadi kesalahan: {str(e)}")
 
 
 # ══════════════════════════════════════════════════════════
-#  Endpoint: Emotion dari Upload Gambar
+#  Endpoint: Emotion (Menggunakan Sinkron 'def' untuk Menghindari Blocking)
 # ══════════════════════════════════════════════════════════
 @app.post(
     "/predict/emotion/upload",
@@ -482,18 +509,15 @@ def predict_stress(data: StressInput):
     summary="Klasifikasi emosi wajah dari file gambar",
     response_model=EmotionOutput
 )
-async def predict_emotion_upload(file: UploadFile = File(...)):
-    """
-    Upload file gambar (JPEG/JPG/PNG, maks 5 MB).
-    Mengembalikan prediksi emosi: Angry, Disgust, Fear, Happy, Sad, Surprise.
-    """
+def predict_emotion_upload(file: UploadFile = File(...)):
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(
             status_code=415,
             detail=f"Format tidak didukung: {file.content_type}. Gunakan JPEG, JPG, atau PNG."
         )
 
-    image_bytes = await file.read()
+    # Membaca file secara sinkron karena berada di dalam fungsi 'def' biasa
+    image_bytes = file.file.read()
 
     if len(image_bytes) > MAX_FILE_SIZE_MB * 1024 * 1024:
         raise HTTPException(
@@ -504,26 +528,20 @@ async def predict_emotion_upload(file: UploadFile = File(...)):
     return _run_emotion_inference(image_bytes, source="upload")
 
 
-# ══════════════════════════════════════════════════════════
-#  Endpoint: Emotion dari Frame Kamera
-# ══════════════════════════════════════════════════════════
 @app.post(
     "/predict/emotion/camera",
     tags=["Emotion Classification"],
     summary="Klasifikasi emosi wajah dari frame kamera",
     response_model=EmotionOutput
 )
-async def predict_emotion_camera(file: UploadFile = File(...)):
-    """
-    Kirim satu frame dari kamera sebagai file gambar (JPEG/PNG).
-    """
+def predict_emotion_camera(file: UploadFile = File(...)):
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(
             status_code=415,
             detail=f"Format tidak didukung: {file.content_type}. Gunakan JPEG atau PNG."
         )
 
-    image_bytes = await file.read()
+    image_bytes = file.file.read()
 
     if len(image_bytes) > MAX_FILE_SIZE_MB * 1024 * 1024:
         raise HTTPException(
