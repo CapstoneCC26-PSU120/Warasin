@@ -35,10 +35,12 @@ export const register = async (req, res) => {
 
     const token = generateToken(user.id);
 
+    const isProduction = process.env.NODE_ENV === "production" || process.env.GOOGLE_CALLBACK_URL?.includes("railway.app");
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 30 * 60 * 1000,
     });
 
@@ -92,10 +94,12 @@ export const login = async (req, res) => {
 
     const token = generateToken(user.id);
 
+    const isProduction = process.env.NODE_ENV === "production" || process.env.GOOGLE_CALLBACK_URL?.includes("railway.app");
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 30 * 60 * 1000,
     });
 
@@ -152,7 +156,12 @@ export const getMe = async (req, res) => {
 
 // Logout
 export const logout = (req, res) => {
-  res.clearCookie("token");
+  const isProduction = process.env.NODE_ENV === "production" || process.env.GOOGLE_CALLBACK_URL?.includes("railway.app");
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
 
   res.json({
     message: "Logged out",
