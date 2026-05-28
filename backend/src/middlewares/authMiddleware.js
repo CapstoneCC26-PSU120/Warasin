@@ -21,6 +21,7 @@ export const authMiddleware = (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error("Token verification failed in authMiddleware:", error.message);
     return res.status(401).json({ message: "Invalid token" });
   }
 };
