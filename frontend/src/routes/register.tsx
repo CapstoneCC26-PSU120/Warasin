@@ -29,7 +29,7 @@ function Register() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:4000/api/auth/google";
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`;
   };
 
   return (
@@ -53,7 +53,9 @@ function Register() {
       <div className="relative z-10 glass w-full max-w-md rounded-3xl shadow-card p-8 animate-fade-up-delay-1">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-foreground mb-1.5">Buat akun ✨</h1>
-          <p className="text-muted-foreground text-sm">Mulai pantau stres Anda dalam hitungan detik.</p>
+          <p className="text-muted-foreground text-sm">
+            Mulai pantau stres Anda dalam hitungan detik.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -86,11 +88,15 @@ function Register() {
                 className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl bg-background/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all text-sm"
               />
             </div>
-            {errors.email && <p className="text-destructive text-xs mt-1">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-destructive text-xs mt-1">{errors.email.message}</p>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Kata Sandi</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">
+              Kata Sandi
+            </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
                 <Lock size={17} />
@@ -165,7 +171,10 @@ function Register() {
 
           <p className="text-center text-sm text-muted-foreground mt-3">
             Sudah punya akun?{" "}
-            <Link to="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
+            <Link
+              to="/login"
+              className="text-primary hover:text-primary/80 font-medium transition-colors"
+            >
               Masuk
             </Link>
           </p>
@@ -174,7 +183,8 @@ function Register() {
 
       {/* Footer Text */}
       <p className="relative z-10 mt-8 text-muted-foreground text-xs animate-fade-up-delay-2">
-        Dengan melanjutkan, Anda menyetujui ketentuan kami yang <span className="text-accent-bright font-medium">tenang dan bersahabat</span>.
+        Dengan melanjutkan, Anda menyetujui ketentuan kami yang{" "}
+        <span className="text-accent-bright font-medium">tenang dan bersahabat</span>.
       </p>
     </div>
   );
