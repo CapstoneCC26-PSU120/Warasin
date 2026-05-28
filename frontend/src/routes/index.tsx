@@ -186,8 +186,8 @@ function Index() {
                 </h1>
 
                 <p className="max-w-md text-lg text-muted-foreground leading-relaxed">
-                  Luangkan waktu 60 detik. Ambil foto selfie atau mengobrol dengan Wara — asisten AI
-                  kami yang ramah — dan temukan bagaimana perasaan Anda yang sebenarnya hari ini.
+                  Luangkan waktu 60 detik. Ambil foto selfie atau mengobrol dengan Wara, asisten AI
+                  kami yang ramah dan temukan bagaimana perasaan Anda yang sebenarnya hari ini.
                 </p>
 
                 {/* CTA Buttons */}
@@ -254,7 +254,7 @@ function Index() {
               <BentoCard
                 icon={<Camera className="h-6 w-6" />}
                 title="Pindai Wajah"
-                description="Unggah foto selfie — AI kami membaca ekspresi mikro wajah untuk memperkirakan tingkat stres Anda saat ini secara lembut."
+                description="Unggah foto selfie, AI kami membaca ekspresi mikro wajah untuk memperkirakan tingkat stres Anda saat ini secara lembut."
                 color="#60a5fa"
                 className="lg:col-span-1"
               />
@@ -268,7 +268,7 @@ function Index() {
               <BentoCard
                 icon={<Brain className="h-6 w-6" />}
                 title="Wawasan Pintar"
-                description="Tips yang dipersonalisasi berdasarkan pola Anda — dari latihan pernapasan hingga ritual menenangkan diri."
+                description="Tips yang dipersonalisasi berdasarkan pola Anda, dari latihan pernapasan hingga ritual menenangkan diri."
                 color="#a78bfa"
                 className="lg:col-span-1"
               />
@@ -400,7 +400,7 @@ function Index() {
                 <span className="text-primary">satu pemeriksaan</span> setiap kalinya
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Warasin memadukan AI yang ramah dengan desain penuh kesadaran — sehingga melakukan
+                Warasin memadukan AI yang ramah dengan desain penuh kesadaran sehingga melakukan
                 pemeriksaan terasa tidak seperti ujian, melainkan momen berharga untuk diri Anda
                 sendiri.
               </p>
@@ -445,7 +445,7 @@ function Index() {
                 Ready for a <span className="text-amber-300">brighter</span> day?
               </h2>
               <p className="text-primary-foreground/80 text-lg max-w-lg mx-auto">
-                Kesejahteraan Anda sangat penting. Mulai pemeriksaan stres pertama Anda sekarang —
+                Kesejahteraan Anda sangat penting. Mulai pemeriksaan stres pertama Anda sekarang,
                 gratis, cepat, dan dirancang dengan penuh 💛 untuk Anda.
               </p>
               <div className="flex justify-center pt-2">
