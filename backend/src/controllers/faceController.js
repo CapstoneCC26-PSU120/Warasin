@@ -11,18 +11,14 @@ export const analyzeFace = async (req, res) => {
 
     const formData = new FormData();
 
-    formData.append(
-      "file",
-      req.file.buffer,
-      req.file.originalname
-    );
+    formData.append("file", req.file.buffer, req.file.originalname);
 
     const aiResponse = await axios.post(
-      "http://127.0.0.1:8000/predict/emotion/upload",
+      `${process.env.FASTAPI_URL}/predict/emotion/upload`,
       formData,
       {
         headers: formData.getHeaders(),
-      }
+      },
     );
 
     res.status(200).json({

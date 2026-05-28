@@ -156,7 +156,7 @@ function Index() {
               {/* Left: Copy */}
               <div className="space-y-7 animate-fade-up">
                 {/* Badge */}
-                <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 text-sm font-medium text-muted-foreground shadow-sm">
+                <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 text-sm font-medium text-muted-foreground shadow-sm mt-8 md:mt-0">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
                     <Sparkles className="h-3 w-3" />
                   </span>
@@ -215,7 +215,7 @@ function Index() {
               </div>
 
               {/* Right: Hero image with playful frame */}
-              <div className="relative animate-fade-up-delay-1">
+              <div className="relative animate-fade-up-delay-1 hidden md:block">
                 {/* Glow ring */}
                 <div className="absolute -inset-4 rounded-[2.5rem] bg-linear-to-br from-primary/20 via-transparent to-amber-300/20 blur-2xl" />
 
@@ -240,7 +240,7 @@ function Index() {
 
           <div className="relative z-10">
             <div className="mx-auto max-w-2xl text-center mb-14">
-              <span className="inline-block mb-4 text-3xl">🎯</span>
+              {/* <span className="inline-block mb-4 text-3xl">🎯</span> */}
               <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground">
                 Dua cara untuk <span className="text-primary">memeriksa diri</span>
               </h2>
@@ -253,35 +253,35 @@ function Index() {
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               <BentoCard
                 icon={<Camera className="h-6 w-6" />}
-                title="📸 Pindai Wajah"
+                title="Pindai Wajah"
                 description="Unggah foto selfie — AI kami membaca ekspresi mikro wajah untuk memperkirakan tingkat stres Anda saat ini secara lembut."
                 color="#60a5fa"
                 className="lg:col-span-1"
               />
               <BentoCard
                 icon={<MessageCircle className="h-6 w-6" />}
-                title="💬 Obrolan dengan Wara"
+                title="Obrolan dengan Wara"
                 description="Lakukan percakapan singkat yang hangat. Wara mendengarkan, merenungkan, dan memberikan skor yang dipikirkan matang-matang."
                 color="#f472b6"
                 className="lg:col-span-1"
               />
               <BentoCard
                 icon={<Brain className="h-6 w-6" />}
-                title="🧠 Wawasan Pintar"
+                title="Wawasan Pintar"
                 description="Tips yang dipersonalisasi berdasarkan pola Anda — dari latihan pernapasan hingga ritual menenangkan diri."
                 color="#a78bfa"
                 className="lg:col-span-1"
               />
               <BentoCard
                 icon={<Timer className="h-5 w-5" />}
-                title="⚡ Cukup 60 Detik"
+                title="Cukup 60 Detik"
                 description="Tanpa formulir panjang. Buka aplikasi, lakukan pemeriksaan, dan kembali beraktivitas dengan perasaan lebih ringan."
                 color="#fbbf24"
                 className="lg:col-span-1"
               />
               <BentoCard
                 icon={<TrendingUp className="h-5 w-5" />}
-                title="📊 Pantau Tren Anda"
+                title="Pantau Tren Anda"
                 description="Pantau tren stres Anda selama berhari-hari dan berminggu-minggu. Rayakan momen yang lebih tenang!"
                 color="#34d399"
                 className="lg:col-span-2"
@@ -299,7 +299,6 @@ function Index() {
             <div className="grid md:grid-cols-2 gap-16 items-center">
               {/* Left: Steps */}
               <div>
-                <span className="inline-block mb-4 text-3xl">🪜</span>
                 <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground mb-3">
                   Cara <span className="text-primary">kerjanya</span>
                 </h2>
@@ -309,19 +308,19 @@ function Index() {
                 <div>
                   <PlayfulStep
                     number={1}
-                    emoji="📱"
+                    emoji="𝟏"
                     title="Pilih metode pemeriksaan"
                     description="Ambil foto selfie atau buka obrolan dengan Wara — mana saja yang terasa tepat hari ini."
                   />
                   <PlayfulStep
                     number={2}
-                    emoji="🤖"
+                    emoji="𝟐"
                     title="Dapatkan skor Anda"
                     description="AI kami menganalisis masukan Anda dengan lembut dan membagikan gambaran stres Anda secara jelas."
                   />
                   <PlayfulStep
                     number={3}
-                    emoji="📈"
+                    emoji="𝟑"
                     title="Pantau perkembangan Anda"
                     description="Pantau bagaimana perkembangan Anda dari waktu ke waktu dan rayakan setiap momen tenang."
                     isLast
@@ -332,19 +331,16 @@ function Index() {
               {/* Right: Fun stats grid */}
               <div className="grid grid-cols-2 gap-5">
                 <div className="glass rounded-3xl p-7 text-center shadow-card col-span-2">
-                  <span className="text-5xl mb-3 block">🎯</span>
                   <div className="text-4xl font-extrabold text-foreground">98%</div>
                   <div className="text-sm text-muted-foreground mt-1">
                     Pengguna merasa lebih sadar diri setelah hanya satu kali pemeriksaan
                   </div>
                 </div>
                 <div className="glass rounded-3xl p-6 text-center shadow-card">
-                  <span className="text-3xl mb-2 block">⚡</span>
                   <div className="text-2xl font-extrabold text-foreground">60d</div>
                   <div className="text-xs text-muted-foreground mt-1">Rata-rata sesi</div>
                 </div>
                 <div className="glass rounded-3xl p-6 text-center shadow-card">
-                  <span className="text-3xl mb-2 block">🔒</span>
                   <div className="text-2xl font-extrabold text-foreground">100%</div>
                   <div className="text-xs text-muted-foreground mt-1">Pribadi & aman</div>
                 </div>
@@ -358,7 +354,6 @@ function Index() {
           <div className="blob blob-blue animate-blob-delay-2 w-64 h-64 -bottom-24 -left-24" />
           <div className="container mx-auto px-4 relative z-10">
             <div className="text-center mb-14">
-              <span className="inline-block mb-4 text-3xl">💬</span>
               <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground">
                 Telah dipercaya oleh <span className="text-accent-bright">banyak orang</span>
               </h2>
