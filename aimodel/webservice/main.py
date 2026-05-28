@@ -117,38 +117,37 @@ ALLOWED_TYPES     = {"image/jpeg", "image/jpg", "image/png"}
 # ══════════════════════════════════════════════════════════
 # ID di bawah ini diambil dari link Google Drive yang kamu berikan tadi
 EMOTION_DRIVE_ID = "1m1S5tTwiBxhftqpq4HWI5KhLVYatRVwY"
+STRESS_DRIVE_ID  = "1m8QofflMQkdfwkZck0w9N8kjFlYtkSQ3"
+
+STRESS_MODEL_PATH  = os.path.join(MODELS_DIR, "stress_level_prediction_model.keras")
 EMOTION_MODEL_PATH = os.path.join(MODELS_DIR, "emotion_model.keras")
 
-def download_emotion_model_if_needed():
-    os.makedirs(MODELS_DIR, exist_ok=True)
-    
-    # Cek apakah file tidak ada ATAU ukurannya terlalu kecil (< 5MB) 
-    # File asli model .keras pasti berukuran puluhan hingga ratusan MB, sedangkan pointer LFS hanya ~130 bytes.
-    if not os.path.exists(EMOTION_MODEL_PATH) or os.path.getsize(EMOTION_MODEL_PATH) < 5000000:
-        print(f"📥 'emotion_model.keras' tidak ditemukan atau terdeteksi sebagai pointer Git LFS.")
+def download_model_from_drive(file_id: str, target_path: str, filename: str):
+    # Cek apakah file tidak ada ATAU ukurannya terlalu kecil (< 5MB)
+    if not os.path.exists(target_path) or os.path.getsize(target_path) < 5000000:
+        print(f"📥 '{filename}' tidak ditemukan atau terdeteksi sebagai pointer Git LFS.")
         print(f"📥 Memulai unduhan otomatis dari Google Drive...")
-        url = f"https://drive.google.com/uc?id={EMOTION_DRIVE_ID}"
+        url = f"https://drive.google.com/uc?id={file_id}"
         try:
-            # gdown akan mengunduh file besar dan menimpa file pointer yang salah dengan benar
-            gdown.download(url, EMOTION_MODEL_PATH, quiet=False)
-            print(f"✅ 'emotion_model.keras' berhasil diunduh.")
+            gdown.download(url, target_path, quiet=False)
+            print(f"✅ '{filename}' berhasil diunduh.")
         except Exception as e:
-            print(f"❌ Gagal mengunduh emotion model dari Google Drive: {e}")
+            print(f"❌ Gagal mengunduh {filename} dari Google Drive: {e}")
     else:
-        print(f"📦 'emotion_model.keras' lokal valid (bukan pointer) dan siap dimuat.")
+        print(f"📦 '{filename}' lokal valid dan siap dimuat.")
 
-# Jalankan fungsi download khusus untuk emotion model sebelum proses load
-download_emotion_model_if_needed()
+# Jalankan pengecekan & unduhan untuk KEDUA model
+download_model_from_drive(EMOTION_DRIVE_ID, EMOTION_MODEL_PATH, "emotion_model.keras")
+download_model_from_drive(STRESS_DRIVE_ID, STRESS_MODEL_PATH, "stress_level_prediction_model.keras")
 
 
 # ══════════════════════════════════════════════════════════
 #  Load Model saat Server Start
 # ══════════════════════════════════════════════════════════
-# ── Stress model ──
 try:
     preprocessor = joblib.load(os.path.join(MODELS_DIR, "prepocessor.save"))
     stress_model = load_model(
-        os.path.join(MODELS_DIR, "stress_level_prediction_model.keras"),
+        STRESS_MODEL_PATH, # <--- Gunakan variabel STRESS_MODEL_PATH
         custom_objects={"CustomDense": CustomDense},
         compile=False
     )
@@ -166,8 +165,7 @@ except Exception as e:
     stress_model = None
 
 try:
-    # Memuat emotion model yang sudah dipastikan berupa file binary asli (.keras)
-    emotion_model = load_model(EMOTION_MODEL_PATH)
+    emotion_model = load_model(EMOTION_MODEL_PATH) # <--- Gunakan variabel EMOTION_MODEL_PATH
     print("✅ Emotion model berhasil dimuat")
 except Exception as e:
     print(f"❌ Gagal memuat emotion model: {e}")
