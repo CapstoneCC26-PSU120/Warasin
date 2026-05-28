@@ -156,7 +156,7 @@ function Index() {
               {/* Left: Copy */}
               <div className="space-y-7 animate-fade-up">
                 {/* Badge */}
-                <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 text-sm font-medium text-muted-foreground shadow-sm mt-8 md:mt-0">
+                <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 text-sm font-medium text-muted-foreground shadow-sm mt-2 md:mt-0">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
                     <Sparkles className="h-3 w-3" />
                   </span>
