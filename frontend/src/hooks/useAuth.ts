@@ -31,16 +31,23 @@ const getMe = async () => {
 
 const login = async (input: LoginInput) => {
   const { data } = await api.post("/auth/login", input);
+  if (data.token) {
+    localStorage.setItem("token", data.token);
+  }
   return data.user;
 };
 
 const register = async (input: RegisterInput) => {
   const { data } = await api.post("/auth/register", input);
+  if (data.token) {
+    localStorage.setItem("token", data.token);
+  }
   return data.user;
 };
 
 const logout = async () => {
   await api.post("/auth/logout");
+  localStorage.removeItem("token");
 };
 
 const updateProfile = async (input: UpdateProfileInput) => {

@@ -39,7 +39,7 @@ router.get(
       maxAge: 30 * 60 * 1000,
     });
 
-    res.redirect(`${process.env.FRONTEND_URL}/measurement`);
+    res.redirect(`${process.env.FRONTEND_URL}/measurement?token=${token}`);
   },
 );
 
