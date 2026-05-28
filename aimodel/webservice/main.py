@@ -16,33 +16,7 @@ import gdown
 from datetime import datetime, timezone
 from PIL import Image
 
-# ══════════════════════════════════════════════════════════
-#  Download Emotion Model dari Google Drive (Jika Berupa Pointer LFS)
-# ══════════════════════════════════════════════════════════
-# ID di bawah ini diambil dari link Google Drive yang kamu berikan tadi
-EMOTION_DRIVE_ID = "1m1S5tTwiBxhftqpq4HWI5KhLVYatRVwY"
-EMOTION_MODEL_PATH = os.path.join(MODELS_DIR, "emotion_model.keras")
 
-def download_emotion_model_if_needed():
-    os.makedirs(MODELS_DIR, exist_ok=True)
-    
-    # Cek apakah file tidak ada ATAU ukurannya terlalu kecil (< 5MB) 
-    # File asli model .keras pasti berukuran puluhan hingga ratusan MB, sedangkan pointer LFS hanya ~130 bytes.
-    if not os.path.exists(EMOTION_MODEL_PATH) or os.path.getsize(EMOTION_MODEL_PATH) < 5000000:
-        print(f"📥 'emotion_model.keras' tidak ditemukan atau terdeteksi sebagai pointer Git LFS.")
-        print(f"📥 Memulai unduhan otomatis dari Google Drive...")
-        url = f"https://drive.google.com/uc?id={EMOTION_DRIVE_ID}"
-        try:
-            # gdown akan mengunduh file besar dan menimpa file pointer yang salah dengan benar
-            gdown.download(url, EMOTION_MODEL_PATH, quiet=False)
-            print(f"✅ 'emotion_model.keras' berhasil diunduh.")
-        except Exception as e:
-            print(f"❌ Gagal mengunduh emotion model dari Google Drive: {e}")
-    else:
-        print(f"📦 'emotion_model.keras' lokal valid (bukan pointer) dan siap dimuat.")
-
-# Jalankan fungsi download khusus untuk emotion model sebelum proses load
-download_emotion_model_if_needed()
 
 # ══════════════════════════════════════════════════════════
 #  Custom Layer & Patches
@@ -138,6 +112,34 @@ EMOTION_IMG_SIZE  = (96, 96)     # ukuran input sesuai training model
 MAX_FILE_SIZE_MB  = 5
 ALLOWED_TYPES     = {"image/jpeg", "image/jpg", "image/png"}
 
+# ══════════════════════════════════════════════════════════
+#  Download Emotion Model dari Google Drive (Jika Berupa Pointer LFS)
+# ══════════════════════════════════════════════════════════
+# ID di bawah ini diambil dari link Google Drive yang kamu berikan tadi
+EMOTION_DRIVE_ID = "1m1S5tTwiBxhftqpq4HWI5KhLVYatRVwY"
+EMOTION_MODEL_PATH = os.path.join(MODELS_DIR, "emotion_model.keras")
+
+def download_emotion_model_if_needed():
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    
+    # Cek apakah file tidak ada ATAU ukurannya terlalu kecil (< 5MB) 
+    # File asli model .keras pasti berukuran puluhan hingga ratusan MB, sedangkan pointer LFS hanya ~130 bytes.
+    if not os.path.exists(EMOTION_MODEL_PATH) or os.path.getsize(EMOTION_MODEL_PATH) < 5000000:
+        print(f"📥 'emotion_model.keras' tidak ditemukan atau terdeteksi sebagai pointer Git LFS.")
+        print(f"📥 Memulai unduhan otomatis dari Google Drive...")
+        url = f"https://drive.google.com/uc?id={EMOTION_DRIVE_ID}"
+        try:
+            # gdown akan mengunduh file besar dan menimpa file pointer yang salah dengan benar
+            gdown.download(url, EMOTION_MODEL_PATH, quiet=False)
+            print(f"✅ 'emotion_model.keras' berhasil diunduh.")
+        except Exception as e:
+            print(f"❌ Gagal mengunduh emotion model dari Google Drive: {e}")
+    else:
+        print(f"📦 'emotion_model.keras' lokal valid (bukan pointer) dan siap dimuat.")
+
+# Jalankan fungsi download khusus untuk emotion model sebelum proses load
+download_emotion_model_if_needed()
+
 
 # ══════════════════════════════════════════════════════════
 #  Load Model saat Server Start
@@ -166,14 +168,6 @@ except Exception as e:
 try:
     # Memuat emotion model yang sudah dipastikan berupa file binary asli (.keras)
     emotion_model = load_model(EMOTION_MODEL_PATH)
-    print("✅ Emotion model berhasil dimuat")
-except Exception as e:
-    print(f"❌ Gagal memuat emotion model: {e}")
-    emotion_model = None
-
-# ── Emotion model ──
-try:
-    emotion_model = load_model(os.path.join(MODELS_DIR, "emotion_model.keras"))
     print("✅ Emotion model berhasil dimuat")
 except Exception as e:
     print(f"❌ Gagal memuat emotion model: {e}")
