@@ -7,18 +7,32 @@ import api from "@/lib/api";
 
 export const Route = createFileRoute("/measurement")({
   beforeLoad: async ({ context }) => {
+    // Ambil token dari URL query param (dari Google OAuth redirect)
+    // dan simpan ke localStorage SEBELUM memanggil /api/auth/me
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get("token");
+    if (urlToken) {
+      localStorage.setItem("token", urlToken);
+      // Bersihkan token dari URL tanpa reload
+      params.delete("token");
+      const newPath = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+      window.history.replaceState({}, "", newPath);
+    }
+
     try {
-      const user = await context.queryClient.ensureQueryData({
+      const user = await context.queryClient.fetchQuery({
         queryKey: ["auth", "me"],
         queryFn: async () => {
           const { data } = await api.get("/auth/me");
           return data.user;
         },
+        staleTime: 0,
       });
       if (!user) {
         throw redirect({ to: "/login" });
       }
-    } catch (e) {
+    } catch (e: any) {
+      if (e?.isRedirect) throw e;
       throw redirect({ to: "/login" });
     }
   },

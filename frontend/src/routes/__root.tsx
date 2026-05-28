@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { Link, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
@@ -37,7 +37,8 @@ function NotFoundComponent() {
 }
 
 function RootComponent() {
-  useEffect(() => {
+  // Gunakan useLayoutEffect agar token tersimpan SEBELUM child routes render & beforeLoad jalan
+  useLayoutEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
     if (token) {
@@ -45,8 +46,6 @@ function RootComponent() {
       params.delete("token");
       const newPath = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
       window.history.replaceState({}, "", newPath);
-      // Force reload or refetch auth data if necessary, or let queryClient handle it
-      window.location.reload();
     }
   }, []);
 
