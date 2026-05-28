@@ -11,7 +11,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:4000", "https://project-sp824.vercel.app"],
+    origin: [
+      "http://localhost:4000",
+      "https://project-sp824.vercel.app",
+      "https://warasin.vercel.app",
+    ],
 
     credentials: true,
   }),
