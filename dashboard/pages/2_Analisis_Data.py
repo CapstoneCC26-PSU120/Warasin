@@ -58,7 +58,9 @@ st.markdown("""
 
 @st.cache_data
 def load_data():
-    return pd.read_csv('data/sleep_health_cleaned.csv')
+    import os
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return pd.read_csv(os.path.join(base_dir, 'data', 'sleep_health_cleaned.csv'))
 
 df = load_data()
 df['Sleep Disorder'] = df['Sleep Disorder'].fillna('None')
