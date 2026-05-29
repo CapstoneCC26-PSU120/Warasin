@@ -6,3 +6,5 @@
 *.keras
 *.save
 
+__pycache__/
+*.pyc
