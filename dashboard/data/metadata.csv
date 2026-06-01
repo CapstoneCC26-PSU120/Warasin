@@ -1,0 +1,15 @@
+category,split,count,gdrive_folder_id
+angry,train,3995,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+angry,test,958,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+disgust,train,436,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+disgust,test,111,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+fear,train,4097,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+fear,test,1024,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+happy,train,7215,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+happy,test,1774,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+neutral,train,4965,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+neutral,test,1233,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+sad,train,4830,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+sad,test,1247,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+surprise,train,3171,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
+surprise,test,831,10MsfkFqChHEkiWhqL-Wg7W0CojBazAi-
