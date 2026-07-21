@@ -48,9 +48,9 @@ router.post("/penilaian", requireRole("admin"), async (req, res) => {
 
   for (const row of rows) {
     const kandidatId = parseInt(row.id, 10);
-    const skp = parseInt(row.skp, 10) || 0;
-    const kjk = parseInt(row.kjk, 10) || 0;
-    const total = skp - kjk;
+    const skp = parseFloat(row.skp) || 0;
+    const kjk = parseFloat(row.kjk) || 0;
+    const total = Number((skp - kjk).toFixed(2));
 
     await pool.query(
       `INSERT INTO penilaian (kandidat_id, skp, kjk, total)

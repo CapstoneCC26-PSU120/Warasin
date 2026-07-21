@@ -35,9 +35,9 @@
             <td><%= row.divisi %></td>
             <td>
               <input type="hidden" name="kandidat[<%= i %>][id]" value="<%= row.id %>">
-              <input type="number" name="kandidat[<%= i %>][skp]" value="<%= n ? n.skp : '' %>" required>
+              <input type="number" step="0.01" name="kandidat[<%= i %>][skp]" value="<%= n ? n.skp : '' %>" required>
             </td>
-            <td><input type="number" name="kandidat[<%= i %>][kjk]" value="<%= n ? n.kjk : '' %>" required></td>
+            <td><input type="number" step="0.01" name="kandidat[<%= i %>][kjk]" value="<%= n ? n.kjk : '' %>" required></td>
             <td><b><%= n ? n.total : '-' %></b></td>
           </tr>
         <% }) %>
