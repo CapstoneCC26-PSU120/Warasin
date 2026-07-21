@@ -11,7 +11,7 @@ function homeForRole(role) {
   return "/dashboard";
 }
 
-const TITLE = "Login - Reward System";
+const TITLE = "Login - Sistem Reward BPS";
 
 router.get("/", (req, res) => {
   if (req.user) return res.redirect(homeForRole(req.user.role));

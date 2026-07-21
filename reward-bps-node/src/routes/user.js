@@ -6,16 +6,13 @@ const { requireRole, issueToken } = require("../middleware/auth");
 const router = express.Router();
 
 const PERTANYAAN = [
-  "Integritas dan etika kerja",
-  "Kerja sama",
-  "Tanggung jawab",
-  "Komunikasi",
-  "Kedisiplinan",
-  "Inisiatif",
-  "Kualitas kerja",
-  "Kepemimpinan",
-  "Loyalitas",
-  "Kontribusi organisasi",
+  { judul: "1. Berorientasi Pelayanan (Ramah, Cepat, Solutif, dan Menyenangkan)", deskripsi: "Ramah, sopan, dan sigap saat memberikan bantuan/layanan kepada pihak eksternal (responden/mitra/masyarakat) maupun sesama rekan kerja. Cekatan dan solutif dalam menyelesaikan permasalahan tanpa menunda-nunda." },
+  { judul: "2. Akuntabel (Jujur, Bertanggung Jawab, dan Berintegritas)", deskripsi: "Berintegritas tinggi, disiplin jam kerja/kehadiran, efisien, bertanggung jawab serta jujur dalam pelaporan tugas (kegiatan statistik/lapangan/administrasi)." },
+  { judul: "3. Kompeten (Mau Belajar dan Berkinerja Terbaik)", deskripsi: "Berusaha meningkatkan kemampuan diri dan bersedia membagikan ilmu/pengetahuan (sharing knowledge) kepada rekan kerja lain. Menghasilkan output pekerjaan yang berkualitas tinggi, teliti, dan sesuai dengan standar ketelitian data statistik." },
+  { judul: "4. Harmonis (Saling Peduli dan Menghargai Perbedaan)", deskripsi: "Mampu menciptakan suasana kerja yang kondusif, menghargai, peduli, suka menolong rekan kerja, dan tidak memicu konflik di lingkungan BPS Purworejo." },
+  { judul: "5. Loyal (Berdedikasi dan Mengutamakan Kepentingan Instansi)", deskripsi: "Berkomitmen tinggi terhadap pencapaian target BPS Kabupaten Purworejo, menjaga nama baik sesama rekan kerja, pimpinan, dan instansi BPS dan rela memberikan waktu ekstra (lembur/lapangan) saat dibutuhkan." },
+  { judul: "6. Adaptif (Inovatif dan Cepat Menyesuaikan Diri)", deskripsi: "Antusias dan cepat menyesuaikan diri terhadap perubahan (sistem/aplikasi baru, metodologi statistik baru, maupun perubahan kebijakan). Dan aktif memberikan ide/inovasi sederhana untuk mempermudah atau mempercepat proses kerja tim." },
+  { judul: "7. Kolaboratif (Bekerja Sama dan Membangun Sinergi)", deskripsi: "Mudah diajak bekerja sama dalam tim, terbuka pada masukan, dan mau berkontribusi aktif dalam kegiatan lintas seksi/fungsi." }
 ];
 
 const TITLE_DASHBOARD = "Dashboard User";
