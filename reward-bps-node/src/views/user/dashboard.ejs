@@ -1,0 +1,22 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { brand: 'Sistem Penilaian Final' }) %>
+
+<div class="container">
+  <div class="card">
+    <h4>Selamat Datang, <%= user.username %></h4>
+    <p>Tim: <span class="badge"><%= user.divisi %></span></p>
+  </div>
+
+  <div class="card">
+    <h5>Menu User</h5>
+    <% if (sesiId === 0) { %>
+      <button disabled>🔒 Sesi Belum Dibuka</button>
+    <% } else if (sudahVote) { %>
+      <button disabled class="btn-save">✅ Anda Sudah Mengisi Penilaian</button>
+    <% } else { %>
+      <a href="/final-vote" class="btn">🗳 Penilaian Final Kandidat</a>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

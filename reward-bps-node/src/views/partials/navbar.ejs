@@ -1,0 +1,20 @@
+<div class="navbar">
+  <span class="brand">
+    <img src="/logo.svg" alt="Logo BPS" class="navbar-logo">
+    <span class="brand-text">
+      Sistem Reward BPS
+      <small class="brand-sub">Kabupaten Purworejo</small>
+    </span>
+  </span>
+  <div class="nav-actions">
+    <% if (user && user.role === 'admin') { %>
+      <a class="btn btn-accent" href="/penilaian">Penilaian</a>
+      <a class="btn btn-accent" href="/kandidat">Data Pegawai</a>
+      <a class="btn btn-accent" href="/kelola-akun">Kelola Akun</a>
+      <a class="btn btn-accent" href="/laporan">Laporan</a>
+    <% } else if (user && user.role === 'user') { %>
+      <a class="btn btn-accent" href="/pengaturan">Pengaturan</a>
+    <% } %>
+    <a class="btn btn-secondary" href="/logout">Logout</a>
+  </div>
+</div>

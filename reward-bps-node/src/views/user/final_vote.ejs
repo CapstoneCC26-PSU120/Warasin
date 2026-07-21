@@ -1,0 +1,53 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { brand: 'Sistem Penilaian Final' }) %>
+
+<div class="container">
+
+<% if (belumBuka) { %>
+  <div class="card center-box"><h3>Sesi belum dibuka.</h3></div>
+<% } else if (sudahVote) { %>
+  <div class="card center-box">
+    <div>
+      <h3>Anda sudah berpartisipasi 📊</h3>
+      <p>Terima kasih, <b><%= user.username %></b></p>
+      <a href="/dashboard" class="btn">Kembali ke Dashboard</a>
+    </div>
+  </div>
+<% } else if (success) { %>
+  <div class="card center-box">
+    <div>
+      <h3>Terima kasih sudah berpartisipasi 🙏</h3>
+      <p>Penilaian Anda berhasil disimpan.</p>
+      <a href="/dashboard" class="btn">Kembali ke Dashboard</a>
+    </div>
+  </div>
+<% } else if (kandidat.length < 3) { %>
+  <div class="card center-box"><h3>Belum ada 3 kandidat teratas.</h3></div>
+<% } else { %>
+  <form method="POST" action="/final-vote">
+    <% kandidat.forEach(function(k, idx){ %>
+      <div class="card">
+        <h4>Kandidat <%= idx + 1 %> dari 3 — <%= k.nama %> (<%= k.divisi %>)</h4>
+        <input type="hidden" name="kandidat[<%= idx %>][id]" value="<%= k.id %>">
+        <% pertanyaan.forEach(function(isi, qi){ %>
+          <% const no = qi + 1; %>
+          <div class="question-block">
+            <b><%= isi %></b>
+            <div class="radio-row">
+              <% for (let n = 10; n >= 6; n--) { %>
+                <label>
+                  <input type="radio" name="kandidat[<%= idx %>][jawaban<%= no %>]" value="<%= n %>" required> <%= n %>
+                </label>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% }) %>
+    <button type="submit" class="btn-save">Kirim Semua Penilaian</button>
+  </form>
+<% } %>
+
+</div>
+
+<%- include('../partials/footer') %>

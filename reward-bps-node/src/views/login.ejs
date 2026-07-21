@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+
+<div class="login-wrap">
+  <div class="login-box">
+    <div style="text-align:center;margin-bottom:18px;">
+      <img src="/logo.svg" alt="Logo BPS" class="login-logo">
+    </div>
+    <h2>Sistem Reward BPS</h2>
+    <p style="color:#444;margin-bottom:4px;font-size:14px;font-weight:600;">Kabupaten Purworejo</p>
+    <p style="color:#666;margin-bottom:20px;">Silakan login untuk melanjutkan</p>
+
+    <% if (error) { %>
+      <div class="error"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/">
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit" style="width:100%;">Masuk</button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

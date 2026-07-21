@@ -1,0 +1,75 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { brand: '📊 Admin Panel - Sistem Penilaian' }) %>
+
+<div class="container">
+
+  <div class="card">
+    <h3>Kontrol Sesi Penilaian Final</h3>
+    <div class="actions">
+      <% if (sesiTerbuka) { %>
+        <form method="POST" action="/tutup-sesi">
+          <button type="submit" class="btn-danger">🔴 Tutup Sesi Penilaian</button>
+        </form>
+      <% } else { %>
+        <form method="POST" action="/buka-sesi">
+          <button type="submit" class="btn-save">🟢 Buka Sesi Penilaian</button>
+        </form>
+      <% } %>
+      <form method="POST" action="/penilaian/reset" onsubmit="return confirm('Yakin ingin reset semua data voting?')">
+        <button type="submit" class="btn-danger">🗑 Reset Semua Data</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Penilaian Kandidat (SKP / KJK)</h3>
+
+    <% if (kandidat.length > 0) { %>
+    <form method="POST" action="/penilaian">
+      <table>
+        <tr><th>Nama</th><th>Tim</th><th>SKP</th><th>KJK</th><th>Total</th></tr>
+        <% kandidat.forEach(function(row, i){ %>
+          <% const n = nilaiByKandidat[row.id]; %>
+          <tr>
+            <td><%= row.nama %></td>
+            <td><%= row.divisi %></td>
+            <td>
+              <input type="hidden" name="kandidat[<%= i %>][id]" value="<%= row.id %>">
+              <input type="number" name="kandidat[<%= i %>][skp]" value="<%= n ? n.skp : '' %>" required>
+            </td>
+            <td><input type="number" name="kandidat[<%= i %>][kjk]" value="<%= n ? n.kjk : '' %>" required></td>
+            <td><b><%= n ? n.total : '-' %></b></td>
+          </tr>
+        <% }) %>
+      </table>
+      <div class="actions">
+        <button type="submit" class="btn-save">💾 Simpan Penilaian</button>
+      </div>
+    </form>
+    <% } else { %>
+      <p>Belum ada kandidat yang dipilih lewat voting ketua.</p>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <h3>🏆 3 Kandidat Teratas</h3>
+    <% if (top3.length > 0) { %>
+    <table>
+      <tr><th>Rank</th><th>Nama</th><th>Tim</th><th>Total</th></tr>
+      <% top3.forEach(function(row, i){ %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= row.nama %></td>
+          <td><%= row.divisi %></td>
+          <td><b><%= row.total %></b></td>
+        </tr>
+      <% }) %>
+    </table>
+    <% } else { %>
+      <p>Belum ada data penilaian.</p>
+    <% } %>
+  </div>
+
+</div>
+
+<%- include('../partials/footer') %>

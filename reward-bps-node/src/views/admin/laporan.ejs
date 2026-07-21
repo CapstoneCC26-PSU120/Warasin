@@ -1,0 +1,88 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container">
+  <a href="/penilaian" class="btn btn-secondary">⬅️ Kembali</a>
+
+  <div class="card" style="margin-top:20px;">
+    <label for="sesiSelect">Pilih Sesi:</label>
+    <select id="sesiSelect" onchange="showSesi(this.value)">
+      <% sesiList.forEach(function(sesi, i){ %>
+        <option value="<%= sesi.id %>" <%= sesi.id === activeSesiId ? 'selected' : '' %>>Sesi <%= i + 1 %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <% sesiList.forEach(function(sesi, i){ %>
+    <div id="sesi<%= sesi.id %>" class="sesi-content card" style="display:<%= sesi.id === activeSesiId ? 'block' : 'none' %>;">
+      <div style="font-weight:600;color:#555;margin-bottom:10px;">
+        📅 Tanggal Sesi: <%= new Date(sesi.created_at).toLocaleString('id-ID') %>
+      </div>
+
+      <div class="actions" style="justify-content:flex-end;">
+        <form method="POST" action="/laporan/reset/<%= sesi.id %>">
+          <button type="submit" class="btn-danger">🔄 Reset Sesi <%= i + 1 %></button>
+        </form>
+        <form method="POST" action="/laporan/hapus-sesi/<%= sesi.id %>">
+          <button type="submit" class="btn-warning">🗑️ Hapus Sesi <%= i + 1 %></button>
+        </form>
+      </div>
+
+      <% if (sesi.hasil.length === 0) { %>
+        <div class="center-box"><p>Belum ada vote untuk sesi ini.</p></div>
+      <% } else { %>
+        <canvas id="chart<%= sesi.id %>" height="120"></canvas>
+        <table>
+          <tr><th>Ranking</th><th>Nama Kandidat</th><th>Total Nilai</th><th>Total Suara</th></tr>
+          <% sesi.hasil.forEach(function(r, idx){ %>
+            <tr>
+              <td><%= idx + 1 %><% if(idx === 0){ %> <span class="badge badge-gold">Terbaik 👍</span><% } %></td>
+              <td><%= r.nama %></td>
+              <td><%= r.total_nilai || 0 %></td>
+              <td><%= r.total_suara || 0 %></td>
+            </tr>
+          <% }) %>
+        </table>
+      <% } %>
+    </div>
+  <% }) %>
+</div>
+
+<script>
+var sesiCharts = {};
+<% sesiList.forEach(function(sesi){ %>
+  sesiCharts[<%= sesi.id %>] = {
+    labels: <%- JSON.stringify(sesi.hasil.map(function(r){ return r.nama; })) %>,
+    data: <%- JSON.stringify(sesi.hasil.map(function(r){ return r.total_nilai || 0; })) %>
+  };
+<% }) %>
+
+function showSesi(id){
+  document.querySelectorAll('.sesi-content').forEach(function(el){ el.style.display = 'none'; });
+  var el = document.getElementById('sesi' + id);
+  if (!el) return;
+  el.style.display = 'block';
+
+  var canvas = el.querySelector('canvas');
+  if (canvas) {
+    if (canvas.chartInstance) canvas.chartInstance.destroy();
+    var chartData = sesiCharts[id];
+    canvas.chartInstance = new Chart(canvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: chartData.labels,
+        datasets: [{ label: 'Total Nilai', data: chartData.data, backgroundColor: 'rgba(31,78,121,0.75)' }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+  }
+}
+
+<% if (activeSesiId) { %>
+  showSesi(<%= activeSesiId %>);
+<% } %>
+</script>
+
+<%- include('../partials/footer') %>

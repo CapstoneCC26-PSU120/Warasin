@@ -1,0 +1,44 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container">
+  <div class="card">
+    <h2>👤 Manajemen Kandidat</h2>
+
+    <form method="POST" action="/kandidat">
+      <% if (editData) { %>
+        <input type="hidden" name="id" value="<%= editData.id %>">
+      <% } %>
+      <input type="text" name="nama" placeholder="Nama Lengkap" value="<%= editData ? editData.nama : '' %>" required>
+      <input type="text" name="divisi" placeholder="Tim" value="<%= editData ? editData.divisi : '' %>" required>
+
+      <div class="btn-group">
+        <a href="/penilaian" class="btn btn-secondary">⬅ Kembali</a>
+        <% if (editData) { %>
+          <button type="submit" class="btn-save">✏ Update</button>
+        <% } else { %>
+          <button type="submit" class="btn-save">💾 Simpan</button>
+        <% } %>
+      </div>
+    </form>
+
+    <table>
+      <tr><th>No</th><th>Nama</th><th>Tim</th><th>Aksi</th></tr>
+      <% kandidat.forEach(function(row, i){ %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= row.nama %></td>
+          <td><%= row.divisi %></td>
+          <td>
+            <a href="/kandidat?edit=<%= row.id %>"><button type="button" class="btn-warning">✏ Edit</button></a>
+            <form method="POST" action="/kandidat/hapus/<%= row.id %>" style="display:inline" onsubmit="return confirm('Yakin ingin menghapus kandidat ini?')">
+              <button type="submit" class="btn-danger">🗑 Hapus</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

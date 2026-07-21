@@ -1,0 +1,65 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container">
+  <div class="card">
+    <h2>🔐 Kelola Akun</h2>
+
+    <% if (error) { %><div class="error"><%= error %></div><% } %>
+
+    <form method="POST" action="/kelola-akun">
+      <% if (editData) { %>
+        <input type="hidden" name="id" value="<%= editData.id %>">
+      <% } %>
+
+      <input type="text" name="username" placeholder="Username" value="<%= editData ? editData.username : '' %>" required>
+
+      <select name="divisi" required>
+        <option value="">-- Pilih Tim --</option>
+        <% ['IPDS','PRODUKSI','DISTRIBUSI','NERACA','SOSIAL','UMUM'].forEach(function(d){ %>
+          <option value="<%= d %>" <%= editData && editData.divisi === d ? 'selected' : '' %>><%= d %></option>
+        <% }) %>
+      </select>
+
+      <input type="password" name="password" placeholder="<%= editData ? 'Kosongkan jika tidak ingin ganti password' : 'Password' %>" <%= editData ? '' : 'required' %>>
+
+      <select name="role" required>
+        <option value="user" <%= editData && editData.role === 'user' ? 'selected' : '' %>>User</option>
+        <option value="admin" <%= editData && editData.role === 'admin' ? 'selected' : '' %>>Admin</option>
+        <option value="ketua" <%= editData && editData.role === 'ketua' ? 'selected' : '' %>>Ketua</option>
+      </select>
+
+      <div class="btn-group">
+        <a href="/penilaian" class="btn btn-secondary">⬅ Kembali</a>
+        <% if (editData) { %>
+          <button type="submit" class="btn-save">✏ Update</button>
+        <% } else { %>
+          <button type="submit" class="btn-save">💾 Simpan</button>
+        <% } %>
+      </div>
+    </form>
+
+    <table>
+      <tr><th>No</th><th>Username</th><th>Tim</th><th>Role</th><th>Aksi</th></tr>
+      <% users.forEach(function(row, i){ %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= row.username %></td>
+          <td><%= row.divisi %></td>
+          <td><b><%= row.role.toUpperCase() %></b></td>
+          <td>
+            <a href="/kelola-akun?edit=<%= row.id %>"><button type="button" class="btn-warning">✏</button></a>
+            <form method="POST" action="/kelola-akun/reset/<%= row.id %>" style="display:inline" onsubmit="return confirm('Reset password ke 123456?')">
+              <button type="submit" class="btn-warning">🔑</button>
+            </form>
+            <form method="POST" action="/kelola-akun/hapus/<%= row.id %>" style="display:inline" onsubmit="return confirm('Hapus akun ini?')">
+              <button type="submit" class="btn-danger">🗑</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

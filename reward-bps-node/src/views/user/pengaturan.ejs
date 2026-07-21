@@ -1,0 +1,34 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { brand: 'Sistem Penilaian Final' }) %>
+
+<div class="container" style="max-width:500px;">
+  <div class="card">
+    <h4 style="text-align:center;">⚙ Pengaturan Akun</h4>
+
+    <% if (error) { %><div class="error"><%= error %></div><% } %>
+    <% if (success) { %><div class="success-msg">Data berhasil diperbarui!</div><% } %>
+
+    <form method="POST" action="/pengaturan">
+      <label>Username</label>
+      <input type="text" name="username" value="<%= user.username %>" required>
+
+      <hr>
+
+      <label>Password Lama</label>
+      <input type="password" name="password_lama" required>
+
+      <label>Password Baru</label>
+      <input type="password" name="password_baru" placeholder="Kosongkan jika tidak ingin mengganti">
+
+      <label>Konfirmasi Password Baru</label>
+      <input type="password" name="konfirmasi">
+
+      <div class="btn-group">
+        <a href="/dashboard" class="btn btn-secondary">⬅ Kembali</a>
+        <button type="submit" class="btn-save">💾 Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

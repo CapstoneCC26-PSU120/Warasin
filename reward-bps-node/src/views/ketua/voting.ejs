@@ -1,0 +1,41 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { brand: 'Sistem Voting Ketua' }) %>
+
+<div class="container">
+  <div class="card">
+    <h4>Selamat Datang, <%= user.username %></h4>
+    <p>Tim Anda: <span class="badge"><%= user.divisi %></span></p>
+  </div>
+
+  <div class="card">
+    <h5>Form Voting Ketua</h5>
+
+    <% if (error) { %><div class="error"><%= error %></div><% } %>
+
+    <% if (sudahVoting) { %>
+      <p class="success-msg">Anda sudah melakukan voting.</p>
+    <% } else { %>
+      <form method="POST" action="/voting">
+        <label>Pilih Kandidat Internal (Tim Anda)</label>
+        <select name="internal" required>
+          <option value="">-- Pilih Internal --</option>
+          <% internal.forEach(function(row){ %>
+            <option value="<%= row.id %>"><%= row.nama %></option>
+          <% }) %>
+        </select>
+
+        <label>Pilih Kandidat Eksternal</label>
+        <select name="external" required>
+          <option value="">-- Pilih Eksternal --</option>
+          <% eksternal.forEach(function(row){ %>
+            <option value="<%= row.id %>"><%= row.nama %> - <%= row.divisi %></option>
+          <% }) %>
+        </select>
+
+        <button type="submit">Kirim Voting</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
